@@ -1,7 +1,7 @@
 def Main():
     #get file handle and open the file that is named in command line
-    binaryVal = LoadDiagnostics(open(sys.argv[1]))
-    power = CheckPower(binaryVal)
+    gamma_rate = LoadDiagnostics(open(sys.argv[1]))
+    power = CheckPower(gamma_rate)
     return power
     
 def LoadDiagnostics(filehandle):
@@ -25,9 +25,9 @@ def LoadDiagnostics(filehandle):
         for binary_str in list_of_indexes:
             count_0 = string.count('0')
             count_1 = string.count('1')
-            if count_0 > count_1
+            if count_0 > count_1:
                 gamma_rate + 0
-            else
+            else:
                 gamma_rate + 1
     return gamma_rate
 
