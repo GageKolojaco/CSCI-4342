@@ -10,6 +10,8 @@ def LoadDiagnostics(filehandle):
         print(line)
     filehandle.close() 
 
+if __name__ == '__main__':
+    Main()
 #def CheckPower():
     
     
