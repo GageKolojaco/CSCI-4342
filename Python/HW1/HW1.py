@@ -8,19 +8,20 @@ def Main():
         )
     print('Power Consumption rate: '+ str(power))
 def LoadDiagnostics(filehandle):
+    #print statement
     print('Loading diagnostics...')
-    #find the maximum length of the strings contained within the file
-    max_length = max(len(binary) for binary in filehandle.readlines())
-    #move the pointer back to the appropriate position to read the file again
-    filehandle.seek(0)
+    #shorthand for filehandler
+    binary_strings = filehandle.readlines()
+    #strip whitespace and filter out empty lines
+    binary_strings = [string.strip() for string in binary_strings if string.strip()]
+    #find the maximum length of the strings contained within the file by reading the first one
+    max_length = len(lines[0])
     #create a list of lists for each index position
     list_of_binary_str = [[] for _ in range(max_length)]
     #loop through the each string in the file
-    for line in filehandle.readlines():
-        #strip the newline out so I dont have an annoying extra list
-        line = line.strip()
+    for binary_str in binary_strings():
         #loop through each character in each string
-        for index, char in enumerate(line):
+        for index, char in enumerate(binary_str):
             #append the element to its respective list
             list_of_binary_str[index].append(char)
     #close filehandler
