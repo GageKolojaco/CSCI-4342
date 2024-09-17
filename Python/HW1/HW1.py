@@ -6,8 +6,7 @@ def Main():
             open(sys.argv[1]) #get file handle and open the file that is named in command line
             )
         )
-    print('Power Consumption rate: 'str(power))
-    
+    print('Power Consumption rate: '+ str(power))
 def LoadDiagnostics(filehandle):
     print('Loading diagnostics...')
     #find the maximum length of the strings contained within the file
@@ -19,7 +18,7 @@ def LoadDiagnostics(filehandle):
     #loop through the each string in the file
     for line in filehandle.readlines():
         #loop through each character in each string
-        for index, char in enumerate(line):
+        for index, char in enumerate(line.strip.split()):
             #append the element to its respective list
             list_of_binary_str[index].append(char)
     #close filehandler
