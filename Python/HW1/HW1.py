@@ -1,15 +1,12 @@
 import sys
 
-if __name__ == '__main__':
-    Main()
-    
 def Main():
     power = CheckPower(
         LoadDiagnostics(
             open(sys.argv[1]) #get file handle and open the file that is named in command line
             )
         )
-    print('Power Consumption rate: {power}')
+    print('Power Consumption rate: 'str(power))
     
 def LoadDiagnostics(filehandle):
     print('Loading diagnostics...')
@@ -41,6 +38,7 @@ def CheckPower(list_of_binary_str):
             gamma_rate += '0'  #append '0' to the gamma rate
         else:
             gamma_rate += '1'  #append '1' to the gamma rate
+        print (gamma_rate)
     print('Gamma rate computed...')
     #we flip the gamma rate using slicing to deducte the epsilon rate
     epsilon_rate = gamma_rate[::-1]
@@ -50,4 +48,8 @@ def CheckPower(list_of_binary_str):
     gamma_value = int(gamma_rate, 2)
     epsilon_value = int(epsilon_rate, 2)
     return gamma_value * epsilon_value
+#not sure why it wouldn't run the main function unless
+#I put this, but the internet told me to
+if __name__ == '__main__':
+    Main()
     
