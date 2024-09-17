@@ -1,8 +1,8 @@
 def Main():
     #get file handle and open the file that is named in command line
-    filehandle = open(sys.argv[1])
-    LoadDiagnostics(filehandle)
-    #CheckPower()
+    binaryVal = LoadDiagnostics(open(sys.argv[1]))
+    power = CheckPower(binaryVal)
+    return power
     
 def LoadDiagnostics(filehandle):
     #loop through the file and ...
