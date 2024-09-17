@@ -15,11 +15,11 @@ def LoadDiagnostics(filehandle):
     #strip whitespace and filter out empty lines
     binary_strings = [string.strip() for string in binary_strings if string.strip()]
     #find the maximum length of the strings contained within the file by reading the first one
-    max_length = len(lines[0])
+    max_length = len(binary_strings[0])
     #create a list of lists for each index position
     list_of_binary_str = [[] for _ in range(max_length)]
     #loop through the each string in the file
-    for binary_str in binary_strings():
+    for binary_str in binary_strings:
         #loop through each character in each string
         for index, char in enumerate(binary_str):
             #append the element to its respective list
@@ -49,6 +49,7 @@ def CheckPower(list_of_binary_str):
     #of the gamma & epsilon rate
     gamma_value = int(gamma_rate, 2)
     epsilon_value = int(epsilon_rate, 2)
+    print('Gamma Value: ' + str(gamma_value) + '; Epsilon Value: ' + str(epsilon_value))
     return gamma_value * epsilon_value
 #not sure why it wouldn't run the main function unless
 #I put this, but the internet told me to
