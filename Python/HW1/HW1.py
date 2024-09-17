@@ -42,8 +42,8 @@ def CheckPower(list_of_binary_str):
             gamma_rate += '1'  #append '1' to the gamma rate
         print (gamma_rate)
     print('Gamma rate computed...')
-    #we flip the gamma rate using slicing to deducte the epsilon rate
-    epsilon_rate = gamma_rate[::-1]
+    #we use a cheeky loop to flip all the values of the gamma rate to decuct the epsilon rate
+    epsilon_rate = ''.join('1' if bit == '0' else '0' for bit in gamma_rate)
     print('Epsilon rate computed...')
     #we use the int function at base 2 to deducte the base 10 values
     #of the gamma & epsilon rate
