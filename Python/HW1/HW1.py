@@ -1,42 +1,53 @@
 import sys
 
+if __name__ == '__main__':
+    Main()
+    
 def Main():
-    #get file handle and open the file that is named in command line
-    gamma_rate = LoadDiagnostics(open(sys.argv[1]))
-    power = CheckPower(gamma_rate)
-    return power
+    power = CheckPower(
+        LoadDiagnostics(
+            open(sys.argv[1]) #get file handle and open the file that is named in command line
+            )
+        )
+    print('Power Consumption rate: {power}')
     
 def LoadDiagnostics(filehandle):
-    #find the maximum length of the strings
+    print('Loading diagnostics...')
+    #find the maximum length of the strings contained within the file
     max_length = max(len(binary) for binary in filehandle.readlines())
-    #create string for gamma rate
-    gamma_rate = ''
+    #move the pointer back to the appropriate position to read the file again
+    filehandle.seek(0)
     #create a list of lists for each index position
     list_of_binary_str = [[] for _ in range(max_length)]
-    
     #loop through the each string in the file
     for line in filehandle.readlines():
         #loop through each character in each string
         for index, char in enumerate(line):
             #append the element to its respective list
             list_of_binary_str[index].append(char)
-    filehandle.close()
+    #close filehandler
+    return list_of_binary_str
     
+def CheckPower(list_of_binary_str):
+    #create string for gamma rate
+    gamma_rate = ''
+    #create string for epislon rate
+    epsilon_rate = ''
     #loop through list of respective values
     for list_of_indexes in list_of_binary_str:
-        for binary_str in list_of_indexes:
-            count_0 = string.count('0')
-            count_1 = string.count('1')
-            if count_0 > count_1:
-                gamma_rate + 0
-            else:
-                gamma_rate + 1
-    return gamma_rate
-
-            
-
-if __name__ == '__main__':
-    Main()
-#def CheckPower():
-    
+        count_0 = list_of_indexes.count('0')  #count how many 0's
+        count_1 = list_of_indexes.count('1')  #count how many 1's
+        if count_0 > count_1:
+            gamma_rate += '0'  #append '0' to the gamma rate
+        else:
+            gamma_rate += '1'  #append '1' to the gamma rate
+    print('Gamma rate computed...')
+    #we flip the gamma rate using slicing to deducte the epsilon rate
+    epsilon_rate = gamma_rate[::-1]
+    print('Epsilon rate computed...')
+    #we use the int function at base 2 to deducte the base 10 values
+    #of the gamma & epsilon rate
+    gamma_value = int(gamma_rate, 2)
+    epsilon_value = int(epsilon_rate, 2)
+    return gamma_value * epsilon_value
     
