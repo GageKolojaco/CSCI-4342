@@ -1,3 +1,5 @@
+import sys
+
 def Main():
     #get file handle and open the file that is named in command line
     gamma_rate = LoadDiagnostics(open(sys.argv[1]))
@@ -6,7 +8,7 @@ def Main():
     
 def LoadDiagnostics(filehandle):
     #find the maximum length of the strings
-    max_length = max(len(s) for s in strings)
+    max_length = max(len(binary) for binary in filehandle.readlines())
     #create string for gamma rate
     gamma_rate = ''
     #create a list of lists for each index position
