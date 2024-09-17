@@ -8,7 +8,6 @@ def Main():
         )
     print('Power Consumption rate: '+ str(power))
 def LoadDiagnostics(filehandle):
-    #print statement
     print('Loading diagnostics...')
     #shorthand for filehandler
     binary_strings = filehandle.readlines()
@@ -16,7 +15,7 @@ def LoadDiagnostics(filehandle):
     binary_strings = [string.strip() for string in binary_strings if string.strip()]
     #find the maximum length of the strings contained within the file by reading the first one
     max_length = len(binary_strings[0])
-    #create a list of lists for each index position
+    #create a list of lists for each index position based off max length
     list_of_binary_str = [[] for _ in range(max_length)]
     #loop through the each string in the file
     for binary_str in binary_strings:
@@ -36,20 +35,19 @@ def CheckPower(list_of_binary_str):
     for list_of_indexes in list_of_binary_str:
         count_0 = list_of_indexes.count('0')  #count how many 0's
         count_1 = list_of_indexes.count('1')  #count how many 1's
+        #based on the frequency of either 1 or 0:
         if count_0 > count_1:
             gamma_rate += '0'  #append '0' to the gamma rate
         else:
             gamma_rate += '1'  #append '1' to the gamma rate
-        print (gamma_rate)
     print('Gamma rate computed...')
-    #we use a cheeky loop to flip all the values of the gamma rate to decuct the epsilon rate
+    #we use a cheeky loop to flip all the values of the gamma rate to decuct the epsilon 
     epsilon_rate = ''.join('1' if bit == '0' else '0' for bit in gamma_rate)
     print('Epsilon rate computed...')
     #we use the int function at base 2 to deducte the base 10 values
     #of the gamma & epsilon rate
     gamma_value = int(gamma_rate, 2)
     epsilon_value = int(epsilon_rate, 2)
-    print('Gamma Value: ' + str(gamma_value) + '; Epsilon Value: ' + str(epsilon_value))
     return gamma_value * epsilon_value
 #not sure why it wouldn't run the main function unless
 #I put this, but the internet told me to
