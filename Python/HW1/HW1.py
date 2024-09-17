@@ -17,8 +17,10 @@ def LoadDiagnostics(filehandle):
     list_of_binary_str = [[] for _ in range(max_length)]
     #loop through the each string in the file
     for line in filehandle.readlines():
+        #strip the newline out so I dont have an annoying extra list
+        line = line.strip()
         #loop through each character in each string
-        for index, char in enumerate(line.strip.split()):
+        for index, char in enumerate(line):
             #append the element to its respective list
             list_of_binary_str[index].append(char)
     #close filehandler
