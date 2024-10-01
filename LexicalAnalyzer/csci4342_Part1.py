@@ -14,6 +14,7 @@ predefined_identifier = ['integer', 'boolean', 'true', 'false']
 
 def main(): 
     parse(open(sys.argv[1])) #get file handle and open the file that is named in command line
+    print("Process ended with exit code 0")
 
 def parse(filehandle):
 	input = filehandle.readlines()
