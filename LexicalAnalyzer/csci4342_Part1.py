@@ -45,7 +45,7 @@ def tokenator(token):
         return "Addition Token"
     elif token in multiplying_operator:
         return "Multiplication Token"
-    elif token is int:
+    elif token.isdigit():
         return "Integer Token"
     elif re.match(r'^[a-zA-Z][a-zA-Z0-9]*$', token): 
         #this matches the rule  <identifier> -> <letter> { <letter or digit> }
