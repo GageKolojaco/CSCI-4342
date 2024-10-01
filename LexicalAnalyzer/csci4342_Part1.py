@@ -1,11 +1,17 @@
+'''
+	Gage Kolojaco CSCI4342 09/30/24
+	Interpreter Pt. 1
+ 	Lexical Analyzer
+'''
+
 import sys
 import re
 
 #LEXICAL GRAMMAR
-letter = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z']
-digit = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]
+#letter = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z'] - replaced with regex
+#digit - is int
 special_keyword = ['not', 'if', 'then', 'else', 'of', 'while', 'do', 'begin', 'end', 'read', 'write', 'var', 'array', 'procedure', 'program']
-special_char = ['|', '.', ',', ';', ':', '..']
+special_char = ['|', '.', ',', ';', ':', '..', '(', ')']
 assignment_operator = ':='
 relational_operator =  ['=', '<>', '<', '<=', '>=', '>']
 adding_operator = ['+', '-', 'or']
@@ -39,7 +45,7 @@ def tokenator(token):
         return "Addition Token"
     elif token in multiplying_operator:
         return "Multiplication Token"
-    elif token in digit:
+    elif token is int:
         return "Integer Token"
     elif re.match(r'^[a-zA-Z][a-zA-Z0-9]*$', token): 
         #this matches the rule  <identifier> -> <letter> { <letter or digit> }
