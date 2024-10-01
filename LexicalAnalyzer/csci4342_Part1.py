@@ -17,9 +17,9 @@ def main():
     print("Process ended with exit code 0")
 
 def parse(filehandle):
-	input = filehandle.readlines()
 	token_regex = re.compile(r'(\w+|\:=|<=|>=|<>|[^\w\s])') #to capture keywords, assignment/relationship operator(s), and any char that not a word or whitespace ie: special characters
-	for line in input:
+	for line in filehandle:
+		line = line.strip()
 		tokens = token_regex.findall(line)  # Split line into tokens
 		for token in tokens:
 			token_type = tokenator(token)
