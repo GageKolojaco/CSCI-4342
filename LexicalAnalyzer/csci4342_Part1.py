@@ -9,8 +9,8 @@ import re
 
 #LEXICAL GRAMMAR
 #letter = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z'] - replaced with regex
-#digit - is int
-special_keyword = ['not', 'if', 'then', 'else', 'of', 'while', 'do', 'begin', 'end', 'read', 'write', 'var', 'array', 'procedure', 'program']
+#digit - [0, 1, 2, 3, 4, 5, 6, 7, 8, 9] - replaced with .isdigit
+special_keyword = ['not', 'if', 'then', 'else', 'of', 'while', 'do', 'begin', 'end', 'read', 'write', 'var', 'array', 'procedure', 'program'] #i split this into special keyword and special char to better fit the "reserved" and "special" token types
 special_char = ['|', '.', ',', ';', ':', '..', '(', ')']
 assignment_operator = ':='
 relational_operator =  ['=', '<>', '<', '<=', '>=', '>']
@@ -24,12 +24,12 @@ def main():
 
 def parse(filehandle):
 	token_regex = re.compile(r'(\w+|\:=|<=|>=|<>|[^\w\s])') #to capture keywords, assignment/relationship operator(s), and any char that not a word or whitespace ie: special characters
-	for line in filehandle:
-		line = line.strip()
-		tokens = token_regex.findall(line)  # Split line into tokens
-		for token in tokens:
-			token_type = tokenator(token)
-			print(f"{token} : {token_type}")
+	for line in filehandle: #loop through file by line
+		line = line.strip()	#strip whitespace
+		tokens = token_regex.findall(line)  #split lines into list of tokens based on expression
+		for token in tokens: #loop through list of tokens
+			token_type = tokenator(token) #pass each one to the tokenator function to get their token type
+			print(f"{token} : {token_type}") 
 
 #defines each token appropriately
 def tokenator(token):
