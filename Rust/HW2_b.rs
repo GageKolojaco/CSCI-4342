@@ -18,54 +18,60 @@ fn main() {
         eprintln!("Can't execute program, please run like this and make sure the file is in the same folder: csci4342_HW2.rs <filename>.txt")
     }
 }
-
+//create a function with a generic type that implements BufRead and a reader parameter, which returns a vector of vectors of characters                                                              
+//this is a generic type that we specified to implement BufRead, so that we can use BufRead specific methods from the trait like .lines()
+//just the reader parameter is not enough because rust binds this part at compile time
 fn load_diagnostics<E: BufRead>(reader: E) -> Vec<Vec<char>> {
     println!("Loading diagnostics...");
-    let mut binary_strings = Vec::new(); 
-    for line in reader.lines() { 
-        if let Ok(line) = line { 
-            let line = line.trim().to_string(); 
-            if !line.is_empty() { 
-                binary_strings.push(line); 
+    let mut binary_strings = Vec::new();  //create a new mutable vector 
+    for line in reader.lines() { //loop through every line in the file
+        if let Ok(line) = line { //if we successfully iterate, move on
+            let line = line.trim().to_string(); //trim the line's whitespace
+            if !line.is_empty() { //ensure the string isn't empty
+                binary_strings.push(line); //push the line onto the vector
+            }
             }
         }
     }
-    let max_length = binary_strings[0].len(); 
-    let mut vec_of_binary_str: Vec<Vec<char>> = vec![Vec::new(); max_length]; 
-    for str in binary_strings { 
-        for (index, char) in str.chars().enumerate() { 
-            vec_of_binary_str[index].push(char); 
+    let max_length = binary_strings[0].len(); //derive the max length of the set of strings by looking at the first
+    let mut vec_of_binary_str: Vec<Vec<char>> = vec![Vec::new(); max_length]; //specify the type and then use a handy macro to create a vector of max_length vectors
+    for str in binary_strings { //loop through the vector of strings
+        for (index, char) in str.chars().enumerate() { //use .chars().enumerate to assign indices to each char in the given string
+            vec_of_binary_str[index].push(char); //push the char to its respective vector based on its indice
         }
     }
     return vec_of_binary_str
-}
 
-fn check_life_support (vec_of_binary_str: Vec<Vec<char>>) -> i32 { 
-    let mut o2_vec = vec_of_binary_str.clone();
-    let mut co2_vec = vec_of_binary_str.clone();
+fn check_life_support (vec_of_binary_str: Vec<Vec<char>>) -> i32 { //defines a function which takes vector of vectors as a param and returns a int 
+    let mut o2_scrubber = String::new();
+    let mut co2_scrubber = String::new();
+    let mut remaining_o2 = vec_of_binary_str.clone();
+    let mut remaining_co2 = vec_of_binary_str.clone();
     
     for i in 0..vec_of_binary_str.len() {
-        if o2_vec.len() > 1 {
-            let count_0 = o2_vec.iter().map(|x| x[i]).filter(|&&c| c == '0').count();
-            let count_1 = o2_vec.iter().map(|x| x[i]).filter(|&&c| c == '1').count();
-            let most_common = if count_1 > count_0 { '1' } else { '0' };
-            o2_vec.retain(|x| x[i] == most_common);
+        if remaining_o2.len() > 1 {
+            let count_0 = remaining_o2[i].iter().filter(|&&c| c == '0').count();
+            let count_1 = remaining_o2[i].iter().filter(|&&c| c == '1').count();
+            let most_common = if count_0 > count_1 { '0' } else { '1' };
+            remaining_o2.retain(|x| x[i] == most_common);
         }
         
-        if co2_vec.len() > 1 {
-            let count_0 = co2_vec.iter().map(|x| x[i]).filter(|&&c| c == '0').count();
-            let count_1 = co2_vec.iter().map(|x| x[i]).filter(|&&c| c == '1').count();
+        if remaining_co2.len() > 1 {
+            let count_0 = remaining_co2[i].iter().filter(|&&c| c == '0').count();
+            let count_1 = remaining_co2[i].iter().filter(|&&c| c == '1').count();
             let least_common = if count_0 <= count_1 { '0' } else { '1' };
-            co2_vec.retain(|x| x[i] == least_common);
+            remaining_co2.retain(|x| x[i] == least_common);
         }
     }
     
-    let o2_vec_str: String = o2_vec[0].iter().collect();
-    let co2_vec_str: String = co2_vec[0].iter().collect();
+    for i in 0..vec_of_binary_str.len() {
+        o2_scrubber.push(remaining_o2[0][i]);
+        co2_scrubber.push(remaining_co2[0][i]);
+    }
     
     println!("O2 Generator computed...");
     println!("CO2 Scrubber rate computed...");
-    let o2_vec_int = i32::from_str_radix(&o2_vec_str, 2).unwrap(); 
-    let co2_vec_int = i32::from_str_radix(&co2_vec_str, 2).unwrap();// 
-    return o2_vec_int * co2_vec_int
+    let o2_scrubber_int = i32::from_str_radix(&o2_scrubber, 2).unwrap(); 
+    let co2_scrubber_int = i32::from_str_radix(&co2_scrubber, 2).unwrap();// 
+    return o2_scrubber_int * co2_scrubber_int
 }
