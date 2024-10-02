@@ -36,13 +36,13 @@ fn load_diagnostics<E: BufRead>(reader: E) -> Vec<Vec<char>> {
 }
 
 fn check_life_support(vec_of_binary_str: Vec<Vec<char>>) -> i32 {
-    let mut o2_scrubber = vec_of_binary_str.clone(); //create clones for use later to avoid ownership issues
+    let mut o2_scrubber = vec_of_binary_str.clone(); //create clones to modify seperately
     let mut co2_scrubber = vec_of_binary_str.clone();
 
-    for i in 0..vec_of_binary_str[0].len() { //loop through the vector of vectors
+    for i in 0..vec_of_binary_str[0].len() { //loop through each position
         if o2_scrubber.len() > 1 { //if there is at least two strings left
-            let count_0 = o2_scrubber.iter().filter(|x| x[i] == '0').count(); //count the # of 0's from all vectors at index i
-            let count_1 = o2_scrubber.iter().filter(|x| x[i] == '1').count(); //count the # of 1's from all vectors at index i
+            let count_0 = o2_scrubber.iter().filter(|x| x[i] == '0').count(); //count the # of vectors with 0 at index i
+            let count_1 = o2_scrubber.iter().filter(|x| x[i] == '1').count(); //count the # of vectors with 1 at index i
             let most_common = if count_1 >= count_0 { '1' } else { '0' }; //add most common bit to our reference string
             o2_scrubber.retain(|x| x[i] == most_common); //remove all the strings that do not match the most common value at index i
         }
