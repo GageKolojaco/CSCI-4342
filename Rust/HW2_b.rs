@@ -23,7 +23,7 @@ fn main() {
 //just the reader parameter is not enough because rust binds this part at compile time
 fn load_diagnostics<E: BufRead>(reader: E) -> Vec<Vec<char>> {
     println!("Loading diagnostics...");
-    let mut binary_strings = Vec::new();
+    let mut binary_strings = Vec::new(); //derive the max length of the set of strings by looking at the first
     for line in reader.lines() {
         if let Ok(line) = line {
             let line = line.trim().to_string();
@@ -34,14 +34,6 @@ fn load_diagnostics<E: BufRead>(reader: E) -> Vec<Vec<char>> {
     }
     return binary_strings;
 }
-    let max_length = binary_strings[0].len(); //derive the max length of the set of strings by looking at the first
-    let mut vec_of_binary_str: Vec<Vec<char>> = vec![Vec::new(); max_length]; //specify the type and then use a handy macro to create a vector of max_length vectors
-    for str in binary_strings { //loop through the vector of strings
-        for (index, char) in str.chars().enumerate() { //use .chars().enumerate to assign indices to each char in the given string
-            vec_of_binary_str[index].push(char); //push the char to its respective vector based on its indice
-        }
-    }
-    return vec_of_binary_str
 
 fn check_life_support(vec_of_binary_str: Vec<Vec<char>>) -> i32 {
     let mut o2_scrubber = vec_of_binary_str.clone();
