@@ -2,7 +2,6 @@ use std::env;
 use std::fs::File;
 use std::io;
 use std::io::BufRead;
-use std::path::Path;
 
 fn main() {
     if let Some(filename) = env::args().nth(1) { //if Some returns a value than we correctly parsed the second argument (intended to be the filename)
