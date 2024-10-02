@@ -41,35 +41,31 @@ fn load_diagnostics<E: BufRead>(reader: E) -> Vec<Vec<char>> {
 }
 
 fn check_life_support (vec_of_binary_str: Vec<Vec<char>>) -> i32 { 
-    let mut o2_scrubber = String::new();
-    let mut co2_scrubber = String::new();
-    let mut remaining_o2 = vec_of_binary_str.clone();
-    let mut remaining_co2 = vec_of_binary_str.clone();
+    let mut o2_vec = vec_of_binary_str.clone();
+    let mut co2_vec = vec_of_binary_str.clone();
     
     for i in 0..vec_of_binary_str.len() {
-        if remaining_o2.len() > 1 {
-            let count_0 = remaining_o2[i].iter().filter(|&&c| c == '0').count();
-            let count_1 = remaining_o2[i].iter().filter(|&&c| c == '1').count();
-            let most_common = if count_0 > count_1 { '0' } else { '1' };
-            remaining_o2.retain(|x| x[i] == most_common);
+        if o2_vec.len() > 1 {
+            let count_0 = o2_vec.iter().map(|x| x[i]).filter(|&&c| c == '0').count();
+            let count_1 = o2_vec.iter().map(|x| x[i]).filter(|&&c| c == '1').count();
+            let most_common = if count_1 > count_0 { '1' } else { '0' };
+            o2_vec.retain(|x| x[i] == most_common);
         }
         
-        if remaining_co2.len() > 1 {
-            let count_0 = remaining_co2[i].iter().filter(|&&c| c == '0').count();
-            let count_1 = remaining_co2[i].iter().filter(|&&c| c == '1').count();
+        if co2_vec.len() > 1 {
+            let count_0 = co2_vec.iter().map(|x| x[i]).filter(|&&c| c == '0').count();
+            let count_1 = co2_vec.iter().map(|x| x[i]).filter(|&&c| c == '1').count();
             let least_common = if count_0 <= count_1 { '0' } else { '1' };
-            remaining_co2.retain(|x| x[i] == least_common);
+            co2_vec.retain(|x| x[i] == least_common);
         }
     }
     
-    for i in 0..vec_of_binary_str.len() {
-        o2_scrubber.push(remaining_o2[0][i]);
-        co2_scrubber.push(remaining_co2[0][i]);
-    }
+    let o2_vec_str: String = o2_vec[0].iter().collect();
+    let co2_vec_str: String = co2_vec[0].iter().collect();
     
     println!("O2 Generator computed...");
     println!("CO2 Scrubber rate computed...");
-    let o2_scrubber_int = i32::from_str_radix(&o2_scrubber, 2).unwrap(); 
-    let co2_scrubber_int = i32::from_str_radix(&co2_scrubber, 2).unwrap();// 
-    return o2_scrubber_int * co2_scrubber_int
+    let o2_vec_int = i32::from_str_radix(&o2_vec_str, 2).unwrap(); 
+    let co2_vec_int = i32::from_str_radix(&co2_vec_str, 2).unwrap();// 
+    return o2_vec_int * co2_vec_int
 }
