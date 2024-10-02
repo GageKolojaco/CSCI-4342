@@ -1,6 +1,6 @@
 use std::env;
 use std::fs::File;
-use std:io
+use std::io
 use std::path::Path;
 
 fn main() {
@@ -33,7 +33,7 @@ fn load_diagnostics<E: BufRead>(reader: E) -> Vec<Vec<char>> {
         }
     }
     let max_length = binary_strings[0].len(); //derive the max length of the set of strings by looking at the first
-    let vec_of_binary_str: Vec<Vec<char>> = vec![Vec::new(); max_length]; //specify the type and then use a handy macro to create a vector of max_length vectors
+    let mut vec_of_binary_str: Vec<Vec<char>> = vec![Vec::new(); max_length]; //specify the type and then use a handy macro to create a vector of max_length vectors
     for str in binary_strings { //loop through the vector of strings
         for (index, char) in str.chars().enumerate() { //use .chars().enumerate to assign indices to each char in the given string
             vec_of_binary_str[index].push(char); //push the char to its respective vector based on its indice
@@ -46,8 +46,8 @@ fn check_life_support (vec_of_binary_str: Vec<Vec<char>>) -> i32 { //defines a f
     let mut o2_scrubber = String::new();
     let mut co2_scrubber = String::new();
     for binary_strings in vec_of_binary_str { //loop through the vector and count the number of 0's or 1's contained in each vector
-        let count_0 = binary_strings.iter().filter(|char| char == '0').count();
-        let count_1 = binary_strings.iter().filter(|char| char == '1').count();
+        let count_0 = binary_strings.iter().filter(|&&c| c == '0').count();
+        let count_1 = binary_strings.iter().filter(|&&c| c == '1').count();
         if count_0 > count_1 { //add one to the gamma rate for that vector only if the # of 0's is >
             o2_scrubber.push('0');
         } else {
