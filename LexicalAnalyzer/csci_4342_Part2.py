@@ -37,7 +37,8 @@ def tokenator(token):
     else:
         return "Invalid Token"
 
-def lexical_analyzer(filehandle):
+def parse(filehandle):
+    global tokens, current_token, token_index
     token_regex = re.compile(r'(\w+|\:=|<=|>=|<>|[^\w\s])')
     tokens = []
     for line in filehandle:
@@ -46,9 +47,13 @@ def lexical_analyzer(filehandle):
         for token in line_tokens:
             token_type = tokenator(token)
             tokens.append((token, token_type))
-    return tokens
+    
+    token_index = 0
+    current_token = tokens[0] if tokens else None
+    
+    # Start parsing
+    program()
 
-# Parser functions
 def advance():
     global current_token, token_index
     token_index += 1
@@ -258,7 +263,7 @@ def constant():
         match("Data Type Token")
      else:
         raise SyntaxError(f"Invalid constant: {current_token}")
-    
+
 def main():
     if len(sys.argv) != 2:
         print("Usage: python script_name.py <input_file>")
@@ -266,13 +271,7 @@ def main():
 
     try:
         with open(sys.argv[1], 'r') as filehandle:
-            global tokens, current_token, token_index
-            tokens = lexical_analyzer(filehandle)
-            token_index = 0
-            current_token = tokens[0] if tokens else None
-
-            # Start parsing
-            program()
+            parse(filehandle)
             print("Parsing completed successfully.")
     except FileNotFoundError:
         print(f"Error: File '{sys.argv[1]}' not found.")
