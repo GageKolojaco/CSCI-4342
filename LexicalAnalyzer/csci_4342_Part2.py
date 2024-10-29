@@ -258,3 +258,33 @@ def constant():
         match("Data Type Token")
      else:
         raise SyntaxError(f"Invalid constant: {current_token}")
+    
+def main():
+    if len(sys.argv) != 2:
+        print("Usage: python script_name.py <input_file>")
+        sys.exit(1)
+
+    input_file = sys.argv[1]
+    
+    try:
+        with open(input_file, 'r') as file:
+            global tokens, current_token, token_index
+            tokens = lexical_analyzer(file)
+            token_index = 0
+            current_token = tokens[0] if tokens else None
+
+            # Start parsing
+            program()
+            print("Parsing completed successfully.")
+    except FileNotFoundError:
+        print(f"Error: File '{input_file}' not found.")
+        sys.exit(1)
+    except SyntaxError as e:
+        print(f"Syntax Error: {e}")
+        sys.exit(1)
+    except Exception as e:
+        print(f"An unexpected error occurred: {e}")
+        sys.exit(1)
+
+if __name__ == "__main__":
+    main()
