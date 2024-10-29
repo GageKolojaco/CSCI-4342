@@ -270,9 +270,8 @@ def main():
         sys.exit(1)
 
     try:
-        with open(sys.argv[1], 'r') as filehandle:
-            parse(filehandle)
-            print("Parsing completed successfully.")
+        parse(sys.argv[1])
+        print("Parsing completed successfully.")
     except FileNotFoundError:
         print(f"Error: File '{sys.argv[1]}' not found.")
         sys.exit(1)
