@@ -264,12 +264,10 @@ def main():
         print("Usage: python script_name.py <input_file>")
         sys.exit(1)
 
-    input_file = sys.argv[1]
-    
     try:
-        with open(input_file, 'r') as file:
+        with open(sys.argv[1], 'r') as filehandle:
             global tokens, current_token, token_index
-            tokens = lexical_analyzer(file)
+            tokens = lexical_analyzer(filehandle)
             token_index = 0
             current_token = tokens[0] if tokens else None
 
@@ -277,7 +275,7 @@ def main():
             program()
             print("Parsing completed successfully.")
     except FileNotFoundError:
-        print(f"Error: File '{input_file}' not found.")
+        print(f"Error: File '{sys.argv[1]}' not found.")
         sys.exit(1)
     except SyntaxError as e:
         print(f"Syntax Error: {e}")
@@ -286,5 +284,5 @@ def main():
         print(f"An unexpected error occurred: {e}")
         sys.exit(1)
 
-if __name__ == "__main__":
+if __name__ == '__main__':
     main()
