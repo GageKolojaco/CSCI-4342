@@ -252,3 +252,9 @@ def variable():
     match("Identifier Token")
 
 def constant():
+     if current_token[1] == "Integer Token":
+        match("Integer Token")
+     elif current_token[0] in ["true", "false"]:
+        match("Data Type Token")
+     else:
+        raise SyntaxError(f"Invalid constant: {current_token}")
