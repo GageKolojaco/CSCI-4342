@@ -16,6 +16,8 @@ current_token = None
 token_index = 0
 
 def tokenator(token):
+    print(f"Processing token: '{token}', Type: {type(token)}")  # Debug print
+    
     if token in special_keyword:
         return "Reserved Token"
     elif token in predefined_identifier:
@@ -35,30 +37,35 @@ def tokenator(token):
     elif token in special_char:
         return "Special Token"
     else:
+        print(f"Warning: Unrecognized token '{token}'")  # Debug print
         return "Invalid Token"
-
+    
 def parse(filehandle):
     global tokens, current_token, token_index
     token_regex = re.compile(r'(\w+|\:=|<=|>=|<>|[^\w\s])')
     tokens = []
     
-    # Debugging output
     print(f"Type of filehandle: {type(filehandle)}")
     print(f"Is filehandle iterable: {hasattr(filehandle, '__iter__')}")
     
-    for line in filehandle:  # Iteration here
-        line = line.strip()
-        line_tokens = token_regex.findall(line)
-        for token in line_tokens:  # Iteration here
-            token_type = tokenator(token)
-            tokens.append((token, token_type))
+    try:
+        for line in filehandle:
+            print(f"Processing line: '{line.strip()}'")  # Debug print
+            line = line.strip()
+            line_tokens = token_regex.findall(line)
+            print(f"Found tokens: {line_tokens}")  # Debug print
+            for token in line_tokens:
+                token_type = tokenator(token)
+                tokens.append((token, token_type))
+    except Exception as e:
+        print(f"Error during parsing: {str(e)}")  # Debug print
+        raise
     
     token_index = 0
     current_token = tokens[0] if tokens else None
     
-    # Start parsing
     program()
-
+    
 def advance():
     global current_token, token_index
     token_index += 1
