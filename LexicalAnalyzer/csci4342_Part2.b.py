@@ -2,15 +2,14 @@
 	Gage Kolojaco CSCI4342 09/30/24
 	Interpreter Pt. 2
  	Parser & Lexical Analyzer
+    This program uses a matching and advancing function to match the current token to the expected one, and advance to the next so long as no mismatch occurs.
 '''
 
 import sys
 import re
 
 #LEXICAL GRAMMAR
-#letter = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z'] - replaced with regex
-#digit - [0, 1, 2, 3, 4, 5, 6, 7, 8, 9] - replaced with .isdigit
-special_keyword = ['not', 'if', 'then', 'else', 'of', 'while', 'do', 'begin', 'end', 'read', 'write', 'var', 'array', 'procedure', 'program'] #i split this into special keyword and special char to better fit the "reserved" and "special" token types
+reserved_keyword = ['not', 'if', 'then', 'else', 'of', 'while', 'do', 'begin', 'end', 'read', 'write', 'var', 'array', 'procedure', 'program']
 special_char = ['|', '.', ',', ';', ':', '..', '(', ')']
 assignment_operator = ':='
 relational_operator =  ['=', '<>', '<', '<=', '>=', '>']
@@ -23,7 +22,7 @@ cur_token_pair = None
 
 def main():
     if len(sys.argv) != 2: 
-        print("Usage: python script_name.py <input_file>")
+        print("Usage: python script_name.py <input_file>") # genric use statement
         sys.exit(1)
     try:
         parse(open(sys.argv[1])) #get file handle and open the file that is named in command line
@@ -33,7 +32,7 @@ def main():
         sys.exit(1)
 
 def tokenator(token):
-    if token in special_keyword:
+    if token in reserved_keyword:
         return "Reserved Token"
     elif token in predefined_identifier:
         return "Data Type Token"
@@ -66,11 +65,11 @@ def parse(filehandle):
             token_pairs.append((token_type, token))  # add token and token type as a tuple.
             print(f"{token_type} : {token}")  # print token and type if needed
     
-    global cur_token_pair, token_index
+    global cur_token_pair, token_index # from here and onwards we use the global keyword to make sure we don't reference a locally created variable
     cur_token_pair = token_pairs[0] if token_pairs else None
-    program()
+    program() #start parsing
 
-def advance():
+def advance(): # function to advance the global token index
     global token_pairs, token_index, cur_token_pair
     token_index += 1
     if token_index < len(token_pairs):
@@ -78,8 +77,8 @@ def advance():
     else:
         cur_token_pair = None
         
-def match(expected_type, expected_val=None):
-    global cur_token_pair
+def match(expected_type, expected_val=None): #function to match the expected token value & token type to the current token value & token type
+    global cur_token_pair #has some error handling built in to help with comprehension
     if not cur_token_pair:
         raise SyntaxError(f"Expected {expected_type}, got end of input")
     if cur_token_pair[0] != expected_type and cur_token_pair[0] not in [
@@ -130,7 +129,7 @@ def simple_type():
     if cur_token_pair[1] in ["integer", "boolean"]:
         match("Data Type Token")
     else:
-        raise SyntaxError(f"Expected simple type, got {cur_token_pair}")
+        raise SyntaxError(f"Expected simple type, got {cur_token_pair[1]}")
 
 def procedure_declaration_part():
     global cur_token_pair
@@ -179,7 +178,7 @@ def simple_statement():
     elif cur_token_pair[1] == "write":
         write_statement()
     else:
-        raise SyntaxError(f"Invalid simple statement: {cur_token_pair}")
+        raise SyntaxError(f"Invalid simple statement: {cur_token_pair[1]}")
 
 def assignment_statement():
     variable()
@@ -219,7 +218,7 @@ def structured_statement():
     elif cur_token_pair[1] == "while":
         while_statement()
     else:
-        raise SyntaxError(f"Invalid structured statement: {cur_token_pair}")
+        raise SyntaxError(f"Invalid structured statement: {cur_token_pair[1]}")
 
 def if_statement():
     global cur_token_pair
@@ -272,7 +271,7 @@ def factor():
         match("Reserved Token", "not")
         factor()
     else:
-        raise SyntaxError(f"Invalid factor: {cur_token_pair}")
+        raise SyntaxError(f"Invalid factor: {cur_token_pair[1]}")
 
 def relational_operator_fun():
     match("Relation Token")
@@ -293,7 +292,7 @@ def constant():
     elif cur_token_pair[1] in ["true", "false"]:
         match("Data Type Token")
     else:
-        raise SyntaxError(f"Invalid constant: {cur_token_pair}")
+        raise SyntaxError(f"Invalid constant: {cur_token_pair[1]}")
 
 if __name__ == '__main__':
     main()
