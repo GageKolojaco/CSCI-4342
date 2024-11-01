@@ -6,7 +6,6 @@
 
 import sys
 import re
-from pathlib import Path #using to debug, TODO: remove later
 
 #LEXICAL GRAMMAR
 #letter = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z'] - replaced with regex
@@ -23,13 +22,11 @@ token_index = 0
 cur_token_pair = None
 
 def main():
-    #if len(sys.argv) != 2: #diabled for debugging.
-        #print("Usage: python script_name.py <input_file>")
-        #sys.exit(1)
-    file_path = Path("c:/Users/Gagek/source/repos/CSCI4342-Gage-Kolojaco-HW/CSCI-4342/LexicalAnalyzer/input.txt")
+    if len(sys.argv) != 2: 
+        print("Usage: python script_name.py <input_file>")
+        sys.exit(1)
     try:
-        with file_path.open("r") as filehandle:
-            parse(filehandle) #get file handle and open the file that is named in command line
+        parse(open(sys.argv[1])) #get file handle and open the file that is named in command line
         print("Parsing completed successfully.")
     except Exception as e:
         print(f"An unexpected error occurred: {e}")
@@ -60,8 +57,6 @@ def tokenator(token):
 
 def parse(filehandle):
     token_regex = re.compile(r'(\w+|\:=|<=|>=|<>|[^\w\s])')  # token regex pattern
-
-
     for line in filehandle:   # iterate through each line
         line = line.strip()   # strip whitespace
         line_tokens = token_regex.findall(line)  # find tokens in line
@@ -72,9 +67,7 @@ def parse(filehandle):
             print(f"{token_type} : {token}")  # print token and type if needed
     
     global cur_token_pair, token_index
-    
     cur_token_pair = token_pairs[0] if token_pairs else None
-    
     program()
 
 def advance():
