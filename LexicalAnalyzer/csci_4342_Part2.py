@@ -214,19 +214,19 @@ def while_statement():
 def expression():
     simple_expression()
     if current_token and current_token[1] == "Relation Token":
-        relational_operator()
+        relational_operator_fun()
         simple_expression()
 
 def simple_expression():
     term()
     while current_token and current_token[1] == "Addition Token":
-        adding_operator()
+        adding_operator_fun()
         term()
 
 def term():
     factor()
     while current_token and current_token[1] == "Multiplication Token":
-        multiplying_operator()
+        multiplying_operator_fun()
         factor()
 
 def factor():
@@ -244,13 +244,13 @@ def factor():
     else:
         raise SyntaxError(f"Invalid factor: {current_token}")
 
-def relational_operator():
+def relational_operator_fun():
     match("Relation Token")
 
-def adding_operator():
+def adding_operator_fun():
     match("Addition Token")
 
-def multiplying_operator():
+def multiplying_operator_fun():
     match("Multiplication Token")
 
 def variable():

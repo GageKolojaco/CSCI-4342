@@ -6,7 +6,7 @@ program exe1 ;
 	begin
 		q := i * i ;
 		if ( i div 2 ) * 2 = i then
-			s := s + q
+			s := s + q ;
 		else
 			s := s - q ;
 	end ;
