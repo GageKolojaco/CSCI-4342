@@ -1,23 +1,45 @@
+'''
+	Gage Kolojaco CSCI4342 09/30/24
+	Interpreter Pt. 2
+ 	Parser & Lexical Analyzer
+'''
+
 import sys
 import re
 
-# Lexical Analyzer definitions
-special_keyword = ['not', 'if', 'then', 'else', 'of', 'while', 'do', 'begin', 'end', 'read', 'write', 'var', 'array', 'procedure', 'program']
+#LEXICAL GRAMMAR
+#letter = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z'] - replaced with regex
+#digit - [0, 1, 2, 3, 4, 5, 6, 7, 8, 9] - replaced with .isdigit
+special_keyword = ['not', 'if', 'then', 'else', 'of', 'while', 'do', 'begin', 'end', 'read', 'write', 'var', 'array', 'procedure', 'program'] #i split this into special keyword and special char to better fit the "reserved" and "special" token types
 special_char = ['|', '.', ',', ';', ':', '..', '(', ')']
 assignment_operator = ':='
-relational_operator = ['=', '<>', '<', '<=', '>=', '>']
+relational_operator =  ['=', '<>', '<', '<=', '>=', '>']
 adding_operator = ['+', '-', 'or']
 multiplying_operator = ['*', 'div', 'and']
 predefined_identifier = ['integer', 'boolean', 'true', 'false']
 
-# Global variables for parser
-tokens = []
-current_token = None
-token_index = 0
+def main(): 
+    parse(open(sys.argv[1])) #get file handle and open the file that is named in command line
+    print("Process ended with exit code 0")
 
+def parse(filehandle):
+    token_regex = re.compile(r'(\w+|\:=|<=|>=|<>|[^\w\s])')  # token regex pattern
+    tokens = []          # list to store tokens
+    token_types = []     # list to store token types
+
+    for line in filehandle:   # iterate through each line
+        line = line.strip()   # strip whitespace
+        line_tokens = token_regex.findall(line)  # find tokens in line
+
+        for token in line_tokens:  # iterate through tokens
+            token_type = tokenator(token)  # get token type from tokenator function
+            tokens.append(token)       # add token to tokens list
+            token_types.append(token_type)  # add token type to token_types list
+            print(f"{token} : {token_type}")  # print token and type if needed
+
+    return tokens, token_types  # return lists of tokens and types for further use
+#defines each token appropriately
 def tokenator(token):
-    print(f"Processing token: '{token}', Type: {type(token)}")  # Debug print
-    
     if token in special_keyword:
         return "Reserved Token"
     elif token in predefined_identifier:
@@ -32,250 +54,14 @@ def tokenator(token):
         return "Multiplication Token"
     elif token.isdigit():
         return "Integer Token"
-    elif re.match(r'^[a-zA-Z][a-zA-Z0-9]*$', token):
+    elif re.match(r'^[a-zA-Z][a-zA-Z0-9]*$', token): 
+        #this matches the rule  <identifier> -> <letter> { <letter or digit> }
         return "Identifier Token"
     elif token in special_char:
         return "Special Token"
     else:
-        print(f"Warning: Unrecognized token '{token}'")  # Debug print
         return "Invalid Token"
+
+if __name__ == '__main__':
+    main()
     
-def parse(filehandle):
-    global tokens, current_token, token_index
-    token_regex = re.compile(r'(\w+|\:=|<=|>=|<>|[^\w\s])')
-    tokens = []
-    
-    print(f"Type of filehandle: {type(filehandle)}")
-    print(f"Is filehandle iterable: {hasattr(filehandle, '__iter__')}")
-    
-    try:
-        for line in filehandle:
-            print(f"Processing line: '{line.strip()}'")  # Debug print
-            line = line.strip()
-            line_tokens = token_regex.findall(line)
-            print(f"Found tokens: {line_tokens}")  # Debug print
-            for token in line_tokens:
-                token_type = tokenator(token)
-                tokens.append((token, token_type))
-    except Exception as e:
-        print(f"Error during parsing: {str(e)}")  # Debug print
-        raise
-    
-    token_index = 0
-    current_token = tokens[0] if tokens else None
-    
-    program()
-    
-def advance():
-    global current_token, token_index
-    token_index += 1
-    if token_index < len(tokens):
-        current_token = tokens[token_index]
-    else:
-        current_token = None
-
-def match(expected_type, expected_value=None):
-    if not current_token:
-        raise SyntaxError(f"Expected {expected_type}, got end of input")
-    if current_token[1] != expected_type and current_token[1] not in [
-        "Addition Token",
-        "Multiplication Token",
-        "Relation Token",
-        "Integer Token",
-        "Data Type Token"
-    ]:
-        raise SyntaxError(f"Expected {expected_type}, got {current_token[1]}")
-    if expected_value is not None and current_token[0] != expected_value:
-        raise SyntaxError(f"Expected '{expected_value}', got '{current_token[0]}'")
-    advance()
-
-def program():
-    match("Reserved Token", "program")
-    match("Identifier Token")
-    match("Special Token", ";")
-    block()
-    match("Special Token", ".")
-
-def block():
-    variable_declaration_part()
-    procedure_declaration_part()
-    statement_part()
-
-def variable_declaration_part():
-    if current_token and current_token[0] == "var":
-        match("Reserved Token", "var")
-        variable_declaration()
-        match("Special Token", ";")
-        while current_token and current_token[1] == "Identifier Token":
-            variable_declaration()
-            match("Special Token", ";")
-
-def variable_declaration():
-    match("Identifier Token")
-    while current_token and current_token[0] == ",":
-        match("Special Token", ",")
-        match("Identifier Token")
-    match("Special Token", ":")
-    simple_type()
-
-def simple_type():
-    if current_token[0] in ["integer", "boolean"]:
-        match("Data Type Token")
-    else:
-        raise SyntaxError(f"Expected simple type, got {current_token}")
-
-def procedure_declaration_part():
-    while current_token and current_token[0] == "procedure":
-        procedure_declaration()
-        match("Special Token", ";")
-
-def procedure_declaration():
-    match("Reserved Token", "procedure")
-    match("Identifier Token")
-    match("Special Token", ";")
-    procedure_block()
-
-def procedure_block():
-    variable_declaration_part()
-    statement_part()
-
-def statement_part():
-    compound_statement()
-
-def compound_statement():
-    match("Reserved Token", "begin")
-    statement()
-    while current_token and current_token[0] != "end":
-        statement()
-    match("Reserved Token", "end")
-
-def statement():
-    if current_token[0] in ["begin", "if", "while"]:
-        structured_statement()
-    else:
-        simple_statement()
-        match("Special Token", ";")
-
-def simple_statement():
-    if current_token[1] == "Identifier Token":
-        if tokens[token_index + 1][0] == ":=":
-            assignment_statement()
-        else:
-            procedure_statement()
-    elif current_token[0] == "read":
-        read_statement()
-    elif current_token[0] == "write":
-        write_statement()
-    else:
-        raise SyntaxError(f"Invalid simple statement: {current_token}")
-
-def assignment_statement():
-    variable()
-    match("Assignment Token", ":=")
-    expression()
-
-def procedure_statement():
-    procedure_identifier()
-
-def procedure_identifier():
-    match("Identifier Token")
-
-def read_statement():
-    match("Reserved Token", "read")
-    match("Special Token", "(")
-    input_variable()
-    match("Special Token", ")")
-
-def input_variable():
-    variable()
-
-def write_statement():
-    match("Reserved Token", "write")
-    match("Special Token", "(")
-    output_value()
-    match("Special Token", ")")
-
-def output_value():
-    expression()
-
-def structured_statement():
-    if current_token[0] == "begin":
-        compound_statement()
-    elif current_token[0] == "if":
-        if_statement()
-    elif current_token[0] == "while":
-        while_statement()
-    else:
-        raise SyntaxError(f"Invalid structured statement: {current_token}")
-
-def if_statement():
-    match("Reserved Token", "if")
-    expression()
-    match("Reserved Token", "then")
-    statement()
-    if current_token and current_token[0] == "else":
-        match("Reserved Token", "else")
-        statement()
-
-def while_statement():
-    match("Reserved Token", "while")
-    expression()
-    match("Reserved Token", "do")
-    statement()
-
-def expression():
-    simple_expression()
-    if current_token and current_token[1] == "Relation Token":
-        relational_operator()
-        simple_expression()
-
-def simple_expression():
-    term()
-    while current_token and current_token[1] == "Addition Token":
-        adding_operator()
-        term()
-
-def term():
-    factor()
-    while current_token and current_token[1] == "Multiplication Token":
-        multiplying_operator()
-        factor()
-
-def factor():
-    if current_token[1] == "Identifier Token":
-        variable()
-    elif current_token[1] == "Integer Token" or current_token[0] in ["true", "false"]:
-        constant()
-    elif current_token[0] == "(":
-        match("Special Token", "(")
-        expression()
-        match("Special Token", ")")
-    elif current_token[0] == "not":
-        match("Reserved Token", "not")
-        factor()
-    else:
-        raise SyntaxError(f"Invalid factor: {current_token}")
-
-def relational_operator():
-    match("Relation Token")
-
-def adding_operator():
-    match("Addition Token")
-
-def multiplying_operator():
-    match("Multiplication Token")
-
-def variable():
-    match("Identifier Token")
-
-def constant():
-    if current_token[1] == "Integer Token":
-        match("Integer Token")
-    elif current_token[0] in ["true", "false"]:
-        match("Data Type Token")
-    else:
-        raise SyntaxError(f"Invalid constant: {current_token}")
-
-# Test the parser
-with open('input.txt', 'r') as filehandle:
-    parse(filehandle)
