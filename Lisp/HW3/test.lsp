@@ -23,13 +23,18 @@
                         ((= exponent 0) (format nil "~a" coefficient)) ;if exponent = 0, display coefficient as x^0 is always = 1
                         ((= coefficient 1) (format nil "x^~a" exponent)) ;if coefficient = 1, display x as 1*x is always = x
                         ((/= coefficient 0) (format nil "~ax^~a" coefficient exponent)) ;check that the coefficient != 0, if so use the default format
-
+                        ;for some reason if we had a coeffiecient of 0 it would not be pushed
                     )
-                terms ;push each string to terms
+                terms ;push each string to the front of terms
                 )
             )
-        (format nil "~{~a~^ + ~}" (reverse terms)
         )
+        (format nil "~{~a~^ + ~}" (reverse terms)) ;
     )
 )
-
+(defun eval (coefficients x)
+    (loop for coefficient in coefficients ;loop through list of coefficients
+        for exponent from 0 ;declare exponent var at 0 and begin action
+        sum (* coefficient (expt x exponent)) ;use sum to accumulate our calculated values and return the accumulated value       
+    )
+)
