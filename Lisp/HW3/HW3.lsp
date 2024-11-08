@@ -58,9 +58,10 @@
 )
 
 (defun main ()
-    (let ((filename "poly_numbers.txt") 
+    (let ( 
           (coefficients (read-polynomial "poly_numbers.txt")) 
-          (answer ""))
+          (answer "")
+        )
         (setf answer (polynomial coefficients)) ; set answer
         (format t "Your polynomial is: ~a~%" answer) 
         (loop ; loop until we see quit
