@@ -1,34 +1,29 @@
 (defun read-polynomial (filename) ; declare function 
-    (handler-case
-        (with-open-file (stream filename :if-does-not-exist nil)
-            (let ((coefficients ())) ; declare modifiable list
-                (loop for line = (read-line stream nil) ; update the line var to the next line on each loop
-                    while line  ; while the line var != nil
-                    do (let ((start 0)
-                             (length (length line)))
-                         (loop
-                             while (< start length)
-                             do (let ((comma (position #\, line :start start)))
-                                  (if comma
-                                      (let ((number (subseq line start comma))) ; extract the substring from start to comma
-                                        (push (parse-integer number) coefficients)
-                                        (setf start (1+ comma))) ; move start to after the comma
-                                      (progn
-                                        (let ((number (subseq line start))) ; get the last number after the last comma
-                                          (push (parse-integer number) coefficients))
-                                        (setf start length) ; exit the loop
-                                      )
-                                  )
-                             )
-                         )
-                    )
+    (with-open-file (stream filename :if-does-not-exist nil)
+        (let ((coefficients ())) ; declare modifiable list
+            (loop for line = (read-line stream nil) ; update the line var to the next line on each loop
+                while line  ; while the line var != nil
+                do (let ((start 0)
+                            (length (length line)))
+                        (loop
+                            while (< start length)
+                            do (let ((comma (position #\, line :start start)))
+                                (if comma
+                                    (let ((number (subseq line start comma))) ; extract the substring from start to comma
+                                    (push (parse-integer number) coefficients)
+                                    (setf start (1+ comma))) ; move start to after the comma
+                                    (progn
+                                    (let ((number (subseq line start))) ; get the last number after the last comma
+                                        (push (parse-integer number) coefficients))
+                                    (setf start length) ; exit the loop
+                                    )
+                                )
+                            )
+                        )
                 )
-                (nreverse coefficients) ; return coefficients in correct order
             )
+            (nreverse coefficients) ; return coefficients in correct order
         )
-        (error (c)
-            (format t "Error reading file: ~a~%" c)
-            nil)
     )
 )
 
@@ -68,19 +63,23 @@
         (if coefficients 
             (progn
                 (format t "Your polynomial is: ~a~%" answer) 
-                (loop ; loop until we see quit
+                (loop 
                     (format t "Enter a value for x (or type 'quit' to exit): ")
                     (let ((input (read-line)))
-                        (if (string= input "quit")
-                            (progn
+                        (cond 
+                            ((string= input "quit")
                                 (format t "Exiting program.~%")
                                 (return)
                             )
-                            (handler-case 
-                                (let ((x (parse-integer input)))
-                                    (format t "Result: ~a~%" (eval-polynomial coefficients x)))
-                                (error (c)
-                                    (format t "Invalid input. Please enter a valid integer.~%"))
+                            ((handler-case 
+                                 (parse-integer input)
+                                 (error () nil))
+                             (let ((x (parse-integer input)))
+                                 (format t "Result: ~a~%" (eval-polynomial coefficients x))
+                             )
+                            )
+                            (t 
+                                (format t "Invalid input. Please enter a valid integer.~%")
                             )
                         )
                     )
