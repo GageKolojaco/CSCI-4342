@@ -1,3 +1,5 @@
+(require 'split-sequence)
+
 (defun read (filename) ;declare function 
     (with-open-file (stream filename) ;open file
         (let ((coefficients ())) ;declare modifiable list
@@ -53,11 +55,11 @@
 
 (defun main ()
     (let ((filename "poly_numbers.txt") (coefficients (read "poly_numbers.txt")) (answer ""))
-        (setf answer (polynomial coefficients))
-        (format t "Your polynomial is: ~a~%" answer)
-        (loop
+        (setf answer (polynomial coefficients)) ;set answer
+        (format t "Your polynomial is: ~a~%" answer) 
+        (loop ;loop until we see quit
             (format t "Enter a value for x (or type 'quit' to exit): ")
-            (let ((input (read)))
+            (let ((input (read-line)))
                 (if (string= input "quit")
                     (progn
                         (format t "Exiting program.~%")
