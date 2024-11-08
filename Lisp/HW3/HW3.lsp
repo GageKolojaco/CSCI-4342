@@ -73,7 +73,7 @@
                         (return)
                     )
                     (let ((x (parse-integer input)))
-                        (format t "Result: ~a~%" (eval-polynomial coefficients x)))
+                        (format t "~a~%" (eval-polynomial coefficients x)))
                 )
             )
         )
