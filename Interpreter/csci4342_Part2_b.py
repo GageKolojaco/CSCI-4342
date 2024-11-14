@@ -20,6 +20,7 @@ predefined_identifier = ['integer', 'boolean', 'true', 'false']
 token_pairs = []
 token_index = 0
 cur_token_pair = None
+memory_map = {}  # Dictionary to store variable values
 #INTERPRETER DECLARATIONS
 VAR_DECLARATION = r'^var\s+(\w+)\s*=\s*(\d+);$'  
 READ_PATTERN = r'^read\s+(\w+);$'  
@@ -33,10 +34,34 @@ def main():
     try:
         parse(open(sys.argv[1])) #get file handle and open the file that is named in command line
         print("Parsing completed successfully.")
+        interpret_file(sys.argv[1])
+        print("Interpretation completed successfully.")
     except Exception as e:
         print(f"An unexpected error occurred: {e}")
         sys.exit(1)
 
+def interpret_file(filehandle):
+    with open(filehandle, 'r') as file:
+        for line in file:
+            line = line.strip()
+            process_line(line)
+
+def process_line(line):
+    tokens = line.split()
+    if tokens[0] == "read":
+        var_name = tokens[1]
+        # Perform read operation
+        memory_map[var_name] = input(f"Enter value for {var_name}: ")
+    elif tokens[0] == "write":
+        var_name = tokens[1]
+        # Perform write operation
+        print(f"{var_name} = {memory_map.get(var_name, 'Undefined')}")
+    elif ":=" in tokens:
+        var_name = tokens[0]
+        value = tokens[2]
+        # Perform assignment operation
+        memory_map[var_name] = value
+        
 def tokenator(token):
     if token in reserved_keyword:
         return "Reserved Token"
