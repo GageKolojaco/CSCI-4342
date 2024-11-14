@@ -45,7 +45,7 @@ def interpret():
     global cur_token_pair
     while cur_token_pair is not None:
         if cur_token_pair[1] == "var":
-            variable_interpretation()
+            variable_declaration_interpretation()
         if cur_token_pair[1] == "read":
             read_interpretation()  
         elif cur_token_pair[1] == "write":
@@ -94,13 +94,7 @@ def match(expected_type, expected_val=None): #function to match the expected tok
     global cur_token_pair #has some error handling built in to help with comprehension
     if not cur_token_pair:
         raise SyntaxError(f"Expected {expected_type}, got end of input")
-    if cur_token_pair[0] != expected_type and cur_token_pair[0] not in [
-        "Addition Token",
-        "Multiplication Token",
-        "Relation Token",
-        "Integer Token",
-        "Data Type Token"
-    ]:
+    if cur_token_pair[0] != expected_type:
         raise SyntaxError(f"Expected {expected_type}, got {cur_token_pair[1]}")
     if expected_val is not None and cur_token_pair[1] != expected_val:
         raise SyntaxError(f"Expected '{expected_val}', got '{cur_token_pair[0]}'")
@@ -323,13 +317,11 @@ def parse(filehandle): #moved all parsing functionality into the parse method
 
     program() #start parsing
 
-def variable_interpretation():
+def variable_declaration_interpretation():
     global cur_token_pair, memory_map
-    #match("Reserved Token", "var")
-    advance() #theoretically because we know that the syntax is correct we can just advance
+    advance()
     # Variable names list
     variable_names = []
-    
     # Collect variable names
     while cur_token_pair[0] == "Identifier Token":
         variable_names.append(cur_token_pair[1])  # Append the variable name
@@ -340,14 +332,10 @@ def variable_interpretation():
             match("Special Token", ",")  # Consume the comma
         else:
             break  # Exit if no more variable names
-            
-        # Expecting a colon after variable names
-    #match("Special Token", ":")
-    advance() #theory
+    advance()
     # Get the data type
     data_type = cur_token_pair[1]
     match("Data Type Token")  # Consume the data type token
-    
     # Assign each variable to the memory_map with value None
     for var_name in variable_names:
         local_var = Variable(var_name, None, data_type)
@@ -374,13 +362,44 @@ def write_interpretation():
 
 def assignment_interpretation():
     global cur_token_pair, memory_map
-    var_being_assn_to = cur_token_pair[1]
+    var_being_assn_to_name = cur_token_pair[1]
+    var_being_assn_to = memory_map[var_being_assn_to_name]
     advance()
     advance()
-    expression_interpretation()
+    var_being_assn_to.value = expression_interpretation()
+    memory_map[var_being_assn_to_name] = var_being_assn_to
     
-def expression_interpreation():
+def expression_interpretation():
     global cur_token_pair
+    simple_expression_interpretation()
+    
+def simple_expression_interpretation():
+    global cur_token_pair
+    term_interpretation()
+
+def term_interpretation():
+    global cur_token_pair
+    factor_interpretation()
+    
+def factor_interpretation():
+    global cur_token_pair
+    if cur_token_pair[0] == "Identifier Token":
+            return variable_interpretation()
+    elif cur_token_pair[0] == "Integer Token" or cur_token_pair[0] in ["true", "false"]:
+            #constant()
+            # the way i'm thinking we just need to return the value here, no need for a constant() method
+            return cur_token_pair[1]
+    elif cur_token_pair[1] == "(":
+            advance()
+            expression_interpretation()
+            advance()
+    elif cur_token_pair[1] == "not":
+            advance()
+            factor_interpretation()
+def variable_interpretation():
+    # return cur_token_pair[1] this returns just the variable name
+    # return memory_map[cur_token_pair[1]] this returns the Variable() object
+    # advance()
     
 
 if __name__ == '__main__':
