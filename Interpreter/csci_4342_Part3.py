@@ -21,10 +21,6 @@ token_pairs = []
 token_index = 0
 cur_token_pair = None
 memory_map = {}  # Dictionary to store variable values
-#INTERPRETER DECLARATIONS
-#VAR_DECLARATION = r'^var\s+(\w+)\s*=\s*(\d+);$'  
-#READ_PATTERN = r'^read\s+(\w+);$'  
-#WRITE_PATTERN = r'^write\s+(\w+);$' 
 
 def main():
     if len(sys.argv) != 2: 
@@ -33,6 +29,7 @@ def main():
     try:
         parse(open(sys.argv[1])) #get file handle and open the file that is named in command line
         print("Parsing completed successfully.")
+        reset_token_index() #reset token index for second pass
         interpret_file(sys.argv[1])
         print("Interpretation completed successfully.")
     except Exception as e:
@@ -63,7 +60,12 @@ def process_line(line):
         value = tokens[2]
         # Perform assignment operation
         memory_map[var_name] = value
-        
+
+def reset_token_index():
+    global token_index, cur_token_pair
+    token_index = 0
+    cur_token_pair = token_pairs[token_index] if token_pairs else None
+
 def tokenator(token):
     if token in reserved_keyword:
         return "Reserved Token"
