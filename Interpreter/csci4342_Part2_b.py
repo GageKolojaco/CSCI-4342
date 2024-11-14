@@ -52,11 +52,11 @@ def interpret_file(filehandle):
 def process_line(line):
     tokens = line.split()
     if tokens[0] == "read":
-        var_name = tokens[1]
+        var_name = tokens[2]
         # Perform read operation
         memory_map[var_name] = input(f"Enter value for {var_name}: ")
     elif tokens[0] == "write":
-        var_name = tokens[1]
+        var_name = tokens[2]
         # Perform write operation
         print(f"{var_name} = {memory_map.get(var_name, 'Undefined')}")
     elif ":=" in tokens:
