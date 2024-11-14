@@ -43,14 +43,14 @@ def main():
 
 def interpret():
     global cur_token_pair, token_pairs
-    while token_pairs[token_index + 1][1] is not None:
+    while token_index + 1 < len(token_pairs) and token_pairs[token_index + 1][1] is not None:
         if cur_token_pair[1] == "var":
             variable_declaration_interpretation()
-        if cur_token_pair[1] == "read":
+        elif cur_token_pair[1] == "read":
             read_interpretation()  
         elif cur_token_pair[1] == "write":
             write_interpretation()  
-        if token_pairs[token_index + 1][1] == ":=":
+        if token_index + 1 < len(token_pairs) and token_pairs[token_index + 1][1] == ":=":
             assignment_interpretation()
         advance()  # Move to the next token
 
