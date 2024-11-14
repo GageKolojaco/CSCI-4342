@@ -25,17 +25,15 @@ memory_map = {}  # Dictionary to store variable values
 #VAR_DECLARATION = r'^var\s+(\w+)\s*=\s*(\d+);$'  
 #READ_PATTERN = r'^read\s+(\w+);$'  
 #WRITE_PATTERN = r'^write\s+(\w+);$' 
-file_path = "C:\Users\Gagek\source\repos\CSCI4342-Gage-Kolojaco-HW\CSCI-4342\Interpreter\input3.txt"
-
 
 def main():
-    #if len(sys.argv) != 2: 
-     #   print("Usage: python script_name.py <input_file>") # genric use statement
-      #  sys.exit(1)
+    if len(sys.argv) != 2: 
+        print("Usage: python script_name.py <input_file>") # genric use statement
+        sys.exit(1)
     try:
-        parse(open(file_path)) #get file handle and open the file that is named in command line
+        parse(open(sys.argv[1])) #get file handle and open the file that is named in command line
         print("Parsing completed successfully.")
-        interpret_file(file_path)
+        interpret_file(sys.argv[1])
         print("Interpretation completed successfully.")
     except Exception as e:
         print(f"An unexpected error occurred: {e}")
