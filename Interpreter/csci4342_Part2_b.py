@@ -27,9 +27,28 @@ def main():
     try:
         parse(open(sys.argv[1])) #get file handle and open the file that is named in command line
         print("Parsing completed successfully.")
+        reset_token_index()
+        interpret(open(sys.argv[1]))
+        print("Interpretation completed successfully.")
     except Exception as e:
         print(f"An unexpected error occurred: {e}")
         sys.exit(1)
+
+def interpret():
+    global cur_token_pair, token_index
+    while cur_token_pair is not None:
+        if cur_token_pair[1] == "read":
+            read_statement()  
+        elif cur_token_pair[1] == "write":
+            write_statement()  
+        elif cur_token_pair[1] == ":=":
+            assignment_statement()
+        advance()  # Move to the next token
+
+def reset_token_index():
+    global token_index, cur_token_pair
+    token_index = 0
+    cur_token_pair = token_pairs[token_index] if token_pairs else None
 
 def tokenator(token):
     if token in reserved_keyword:
