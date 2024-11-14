@@ -29,11 +29,11 @@ class Variable:
         self.value_type = value_type
 
 def main():
-    #if len(sys.argv) != 2: 
-        #print("Usage: python script_name.py <input_file>") # genric use statement
-        #sys.exit(1)
+    if len(sys.argv) != 2: 
+        print("Usage: python script_name.py <input_file>") # genric use statement
+        sys.exit(1)
     try:
-        parse(open("Interpreter\input3.txt"))#parse(open(sys.argv[1])) #get file handle and open the file that is named in command line
+        parse(open(sys.argv[1])) #get file handle and open the file that is named in command line
         print("Parsing completed successfully.")
         reset_token_index()
         interpret()
