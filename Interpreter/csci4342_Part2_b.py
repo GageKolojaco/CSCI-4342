@@ -1,7 +1,7 @@
 '''
 	Gage Kolojaco CSCI4342 09/30/24
-	Interpreter Pt. 2
- 	Parser & Lexical Analyzer
+	Interpreter Pt. 3
+ 	Lexical Analyzer, Parser, Iteration
     This program uses a matching and advancing function to match the current token to the expected one, and advance to the next so long as no mismatch occurs.
 '''
 
@@ -16,9 +16,15 @@ relational_operator =  ['=', '<>', '<', '<=', '>=', '>']
 adding_operator = ['+', '-', 'or']
 multiplying_operator = ['*', 'div', 'and']
 predefined_identifier = ['integer', 'boolean', 'true', 'false']
+#GLOBAL VARS
 token_pairs = []
 token_index = 0
 cur_token_pair = None
+#INTERPRETER DECLARATIONS
+VAR_DECLARATION = r'^var\s+(\w+)\s*=\s*(\d+);$'  
+READ_PATTERN = r'^read\s+(\w+);$'  
+WRITE_PATTERN = r'^write\s+(\w+);$' 
+
 
 def main():
     if len(sys.argv) != 2: 
