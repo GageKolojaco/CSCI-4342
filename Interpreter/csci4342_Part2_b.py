@@ -1,7 +1,7 @@
 '''
 	Gage Kolojaco CSCI4342 09/30/24
 	Interpreter Pt. 2
- 	Parser & Lexical Analyzer
+ 	Parser  Lexical Analyzer
     This program uses a matching and advancing function to match the current token to the expected one, and advance to the next so long as no mismatch occurs.
 '''
 
@@ -42,8 +42,8 @@ def main():
         sys.exit(1)
 
 def interpret():
-    global cur_token_pair
-    while cur_token_pair is not None:
+    global cur_token_pair, token_pairs
+    while token_pairs[token_index + 1][1] is not None:
         if cur_token_pair[1] == "var":
             variable_declaration_interpretation()
         if cur_token_pair[1] == "read":
@@ -371,24 +371,39 @@ def assignment_interpretation():
     
 def expression_interpretation():
     global cur_token_pair
-    simple_expression_interpretation()
+    return simple_expression_interpretation()
     
 def simple_expression_interpretation():
     global cur_token_pair
-    term_interpretation()
+    sum = term_interpretation()
+    while cur_token_pair and cur_token_pair[0] == "Addition Token":
+        advance()
+        sum += term_interpretation()
+    return sum
 
 def term_interpretation():
     global cur_token_pair
-    factor_interpretation()
+    product = factor_interpretation()
+    while cur_token_pair and cur_token_pair[0] == "Multiplication Token":
+            if cur_token_pair[1] == "*" or cur_token_pair[1] == "and":
+                advance()
+                product *= factor_interpretation()
+            else:
+                advance
+                product /= factor_interpretation()
+    return product
     
 def factor_interpretation():
-    global cur_token_pair
+    global cur_token_pair, memory_map
+    return_val = None
     if cur_token_pair[0] == "Identifier Token":
-            return variable_interpretation()
-    elif cur_token_pair[0] == "Integer Token" or cur_token_pair[0] in ["true", "false"]:
-            #constant()
-            # the way i'm thinking we just need to return the value here, no need for a constant() method
-            return cur_token_pair[1]
+            data_type = memory_map[cur_token_pair[1]].value_type
+            if data_type == "integer":
+                return_val = int(memory_map[cur_token_pair[1]].value)
+    elif cur_token_pair[0] == "Integer Token":
+            return_val = int(cur_token_pair[1])
+    elif cur_token_pair[0] in ["true", "false"]:
+            return_val = bool(cur_token_pair[1])
     elif cur_token_pair[1] == "(":
             advance()
             expression_interpretation()
@@ -396,11 +411,8 @@ def factor_interpretation():
     elif cur_token_pair[1] == "not":
             advance()
             factor_interpretation()
-def variable_interpretation():
-    # return cur_token_pair[1] this returns just the variable name
-    # return memory_map[cur_token_pair[1]] this returns the Variable() object
-    # advance()
-    
+    advance()
+    return return_val
 
 if __name__ == '__main__':
     main()
