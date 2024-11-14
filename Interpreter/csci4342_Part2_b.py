@@ -28,11 +28,11 @@ class Variable:
         self.value_type = value_type
 
 def main():
-    #if len(sys.argv) != 2: 
-     #   print("Usage: python script_name.py <input_file>") # genric use statement
-      #  sys.exit(1)
+    if len(sys.argv) != 2: 
+        print("Usage: python script_name.py <input_file>") # genric use statement
+        sys.exit(1)
     try:
-        parse(open("Interpreter/input3.txt")) #get file handle and open the file that is named in command line
+        parse(open(sys.argv[1])) #get file handle and open the file that is named in command line
         print("Parsing completed successfully.")
         reset_token_index()
         interpret()
@@ -43,6 +43,103 @@ def main():
 
 def interpret():
     global cur_token_pair, token_pairs
+    def variable_declaration_interpretation():
+        global cur_token_pair, memory_map
+        advance()
+        # Variable names list
+        variable_names = []
+        # Collect variable names
+        while cur_token_pair[0] == "Identifier Token":
+            variable_names.append(cur_token_pair[1])  # Append the variable name
+            advance()  # Move to the next token
+            
+            # Check for a comma to continue collecting variable names
+            if cur_token_pair[1] == ",":
+                match("Special Token", ",")  # Consume the comma
+            else:
+                break  # Exit if no more variable names
+        advance()
+        # Get the data type
+        data_type = cur_token_pair[1]
+        match("Data Type Token")  # Consume the data type token
+        # Assign each variable to the memory_map with value None
+        for var_name in variable_names:
+            local_var = Variable(var_name, None, data_type)
+            memory_map[var_name] = (local_var)
+
+    def read_interpretation():
+        global cur_token_pair, memory_map
+        advance()
+        advance()
+        var_name = cur_token_pair[1]
+        update_var = memory_map[var_name]
+        input_value = input(f"Enter value for {var_name} (type: {update_var.value_type}): ")
+        update_var.value = input_value
+        memory_map[var_name] = update_var
+        advance()
+
+    def write_interpretation():
+        global cur_token_pair, memory_map
+        advance()
+        advance()
+        var_name = cur_token_pair[1]
+        print(memory_map[var_name].value)
+        advance()
+
+    def assignment_interpretation():
+        global cur_token_pair, memory_map
+        var_being_assn_to_name = cur_token_pair[1]
+        var_being_assn_to = memory_map[var_being_assn_to_name]
+        advance()
+        advance()
+        var_being_assn_to.value = expression_interpretation()
+        memory_map[var_being_assn_to_name] = var_being_assn_to
+        
+    def expression_interpretation():
+        global cur_token_pair
+        return simple_expression_interpretation()
+        
+    def simple_expression_interpretation():
+        global cur_token_pair
+        sum = term_interpretation()
+        while cur_token_pair and cur_token_pair[0] == "Addition Token":
+            advance()
+            sum += term_interpretation()
+        return sum
+
+    def term_interpretation():
+        global cur_token_pair
+        product = factor_interpretation()
+        while cur_token_pair and cur_token_pair[0] == "Multiplication Token":
+                if cur_token_pair[1] == "*" or cur_token_pair[1] == "and":
+                    advance()
+                    product *= factor_interpretation()
+                else:
+                    advance
+                    product /= factor_interpretation()
+        return product
+        
+    def factor_interpretation():
+        global cur_token_pair, memory_map
+        return_val = None
+        if cur_token_pair[0] == "Identifier Token":
+                data_type = memory_map[cur_token_pair[1]].value_type
+                if data_type == "integer":
+                    return_val = int(memory_map[cur_token_pair[1]].value)
+        elif cur_token_pair[0] == "Integer Token":
+                return_val = int(cur_token_pair[1])
+        elif cur_token_pair[0] in ["true", "false"]:
+                return_val = bool(cur_token_pair[1])
+        elif cur_token_pair[1] == "(":
+                advance()
+                expression_interpretation()
+                advance()
+        elif cur_token_pair[1] == "not":
+                advance()
+                factor_interpretation()
+        advance()
+        return return_val
+
     while token_index + 1 < len(token_pairs) and token_pairs[token_index + 1][1] is not None:
         if cur_token_pair[1] == "var":
             variable_declaration_interpretation()
@@ -316,103 +413,6 @@ def parse(filehandle): #moved all parsing functionality into the parse method
             raise SyntaxError(f"Invalid constant: {cur_token_pair[1]}")
 
     program() #start parsing
-
-def variable_declaration_interpretation():
-    global cur_token_pair, memory_map
-    advance()
-    # Variable names list
-    variable_names = []
-    # Collect variable names
-    while cur_token_pair[0] == "Identifier Token":
-        variable_names.append(cur_token_pair[1])  # Append the variable name
-        advance()  # Move to the next token
-        
-        # Check for a comma to continue collecting variable names
-        if cur_token_pair[1] == ",":
-            match("Special Token", ",")  # Consume the comma
-        else:
-            break  # Exit if no more variable names
-    advance()
-    # Get the data type
-    data_type = cur_token_pair[1]
-    match("Data Type Token")  # Consume the data type token
-    # Assign each variable to the memory_map with value None
-    for var_name in variable_names:
-        local_var = Variable(var_name, None, data_type)
-        memory_map[var_name] = (local_var)
-
-def read_interpretation():
-    global cur_token_pair, memory_map
-    advance()
-    advance()
-    var_name = cur_token_pair[1]
-    update_var = memory_map[var_name]
-    input_value = input(f"Enter value for {var_name} (type: {update_var.value_type}): ")
-    update_var.value = input_value
-    memory_map[var_name] = update_var
-    advance()
-
-def write_interpretation():
-    global cur_token_pair, memory_map
-    advance()
-    advance()
-    var_name = cur_token_pair[1]
-    print(memory_map[var_name].value)
-    advance()
-
-def assignment_interpretation():
-    global cur_token_pair, memory_map
-    var_being_assn_to_name = cur_token_pair[1]
-    var_being_assn_to = memory_map[var_being_assn_to_name]
-    advance()
-    advance()
-    var_being_assn_to.value = expression_interpretation()
-    memory_map[var_being_assn_to_name] = var_being_assn_to
-    
-def expression_interpretation():
-    global cur_token_pair
-    return simple_expression_interpretation()
-    
-def simple_expression_interpretation():
-    global cur_token_pair
-    sum = term_interpretation()
-    while cur_token_pair and cur_token_pair[0] == "Addition Token":
-        advance()
-        sum += term_interpretation()
-    return sum
-
-def term_interpretation():
-    global cur_token_pair
-    product = factor_interpretation()
-    while cur_token_pair and cur_token_pair[0] == "Multiplication Token":
-            if cur_token_pair[1] == "*" or cur_token_pair[1] == "and":
-                advance()
-                product *= factor_interpretation()
-            else:
-                advance
-                product /= factor_interpretation()
-    return product
-    
-def factor_interpretation():
-    global cur_token_pair, memory_map
-    return_val = None
-    if cur_token_pair[0] == "Identifier Token":
-            data_type = memory_map[cur_token_pair[1]].value_type
-            if data_type == "integer":
-                return_val = int(memory_map[cur_token_pair[1]].value)
-    elif cur_token_pair[0] == "Integer Token":
-            return_val = int(cur_token_pair[1])
-    elif cur_token_pair[0] in ["true", "false"]:
-            return_val = bool(cur_token_pair[1])
-    elif cur_token_pair[1] == "(":
-            advance()
-            expression_interpretation()
-            advance()
-    elif cur_token_pair[1] == "not":
-            advance()
-            factor_interpretation()
-    advance()
-    return return_val
 
 if __name__ == '__main__':
     main()
