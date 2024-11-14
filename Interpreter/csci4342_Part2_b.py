@@ -1,8 +1,8 @@
 '''
 	Gage Kolojaco CSCI4342 09/30/24
-	Interpreter Pt. 2
- 	Parser  Lexical Analyzer
-    This program uses a matching and advancing function to match the current token to the expected one, and advance to the next so long as no mismatch occurs.
+	Interpreter Pt. 3
+ 	Parser, Lexical Analyzer and Interpreter
+    This program uses a matching and advancing function to match the current token to the expected one, and advance to the next so long as no mismatch occurs. Afterwards, it iterates through the file and preforms corresponding operations
 '''
 
 import sys
@@ -16,6 +16,7 @@ relational_operator =  ['=', '<>', '<', '<=', '>=', '>']
 adding_operator = ['+', '-', 'or']
 multiplying_operator = ['*', 'div', 'and']
 predefined_identifier = ['integer', 'boolean', 'true', 'false']
+#GLOBAL VARIABLES
 token_pairs = []
 token_index = 0
 cur_token_pair = None
@@ -42,27 +43,21 @@ def main():
         sys.exit(1)
 
 def interpret():
-    global cur_token_pair, token_pairs
+    global cur_token_pair, token_pairs, memory_map
     def variable_declaration_interpretation():
         global cur_token_pair, memory_map
         advance()
-        # Variable names list
         variable_names = []
-        # Collect variable names
         while cur_token_pair[0] == "Identifier Token":
-            variable_names.append(cur_token_pair[1])  # Append the variable name
-            advance()  # Move to the next token
-            
-            # Check for a comma to continue collecting variable names
+            variable_names.append(cur_token_pair[1])
+            advance()
             if cur_token_pair[1] == ",":
-                match("Special Token", ",")  # Consume the comma
+                match("Special Token", ",")
             else:
-                break  # Exit if no more variable names
+                break
         advance()
-        # Get the data type
         data_type = cur_token_pair[1]
-        match("Data Type Token")  # Consume the data type token
-        # Assign each variable to the memory_map with value None
+        advance()
         for var_name in variable_names:
             local_var = Variable(var_name, None, data_type)
             memory_map[var_name] = (local_var)
