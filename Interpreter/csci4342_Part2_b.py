@@ -22,9 +22,9 @@ token_index = 0
 cur_token_pair = None
 memory_map = {}  # Dictionary to store variable values
 #INTERPRETER DECLARATIONS
-VAR_DECLARATION = r'^var\s+(\w+)\s*=\s*(\d+);$'  
-READ_PATTERN = r'^read\s+(\w+);$'  
-WRITE_PATTERN = r'^write\s+(\w+);$' 
+#VAR_DECLARATION = r'^var\s+(\w+)\s*=\s*(\d+);$'  
+#READ_PATTERN = r'^read\s+(\w+);$'  
+#WRITE_PATTERN = r'^write\s+(\w+);$' 
 
 
 def main():
@@ -38,6 +38,9 @@ def main():
         print("Interpretation completed successfully.")
     except Exception as e:
         print(f"An unexpected error occurred: {e}")
+        sys.exit(1)
+    except SyntaxError as e:
+        print(f"Syntax error: {e}")
         sys.exit(1)
 
 def interpret_file(filehandle):
