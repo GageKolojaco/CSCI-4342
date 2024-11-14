@@ -29,11 +29,11 @@ class Variable:
         self.value_type = value_type
 
 def main():
-    if len(sys.argv) != 2: 
-        print("Usage: python script_name.py <input_file>") # genric use statement
-        sys.exit(1)
+    #if len(sys.argv) != 2: 
+        #print("Usage: python script_name.py <input_file>") # genric use statement
+        #sys.exit(1)
     try:
-        parse(open(sys.argv[1])) #get file handle and open the file that is named in command line
+        parse(open("Interpreter\input3.txt"))#parse(open(sys.argv[1])) #get file handle and open the file that is named in command line
         print("Parsing completed successfully.")
         reset_token_index()
         interpret()
@@ -43,9 +43,8 @@ def main():
         sys.exit(1)
 
 def interpret():
-    global cur_token_pair, token_pairs, memory_map
+    global cur_token_pair, token_pairs, memory_map, token_index
     def variable_declaration_interpretation():
-        global cur_token_pair, memory_map
         advance()
         variable_names = []
         while cur_token_pair[0] == "Identifier Token":
@@ -63,7 +62,6 @@ def interpret():
             memory_map[var_name] = (local_var)
 
     def read_interpretation():
-        global cur_token_pair, memory_map
         advance()
         advance()
         var_name = cur_token_pair[1]
@@ -74,7 +72,6 @@ def interpret():
         advance()
 
     def write_interpretation():
-        global cur_token_pair, memory_map
         advance()
         advance()
         var_name = cur_token_pair[1]
@@ -82,7 +79,6 @@ def interpret():
         advance()
 
     def assignment_interpretation():
-        global cur_token_pair, memory_map
         var_being_assn_to_name = cur_token_pair[1]
         var_being_assn_to = memory_map[var_being_assn_to_name]
         advance()
@@ -91,11 +87,9 @@ def interpret():
         memory_map[var_being_assn_to_name] = var_being_assn_to
         
     def expression_interpretation():
-        global cur_token_pair
         return simple_expression_interpretation()
         
     def simple_expression_interpretation():
-        global cur_token_pair
         sum = term_interpretation()
         while cur_token_pair and cur_token_pair[0] == "Addition Token":
             advance()
@@ -103,7 +97,6 @@ def interpret():
         return sum
 
     def term_interpretation():
-        global cur_token_pair
         product = factor_interpretation()
         while cur_token_pair and cur_token_pair[0] == "Multiplication Token":
                 if cur_token_pair[1] == "*" or cur_token_pair[1] == "and":
@@ -115,7 +108,6 @@ def interpret():
         return product
         
     def factor_interpretation():
-        global cur_token_pair, memory_map
         return_val = None
         if cur_token_pair[0] == "Identifier Token":
                 data_type = memory_map[cur_token_pair[1]].value_type
@@ -193,6 +185,7 @@ def match(expected_type, expected_val=None): #function to match the expected tok
     advance()
 
 def parse(filehandle): #moved all parsing functionality into the parse method
+    global cur_token_pair, token_pairs, token_index
     token_regex = re.compile(r'(\w+|\:=|<=|>=|<>|[^\w\s])')  # token regex pattern
     for line in filehandle:   # iterate through each line
         line = line.strip()   # strip whitespace
@@ -203,7 +196,6 @@ def parse(filehandle): #moved all parsing functionality into the parse method
             token_pairs.append((token_type, token))  # add token and token type as a tuple.
             print(f"{token_type} : {token}")  # print token and type if needed
     
-    global cur_token_pair, token_index # from here and onwards we use the global keyword to make sure we don't reference a locally created variable
     cur_token_pair = token_pairs[0] if token_pairs else None
     #PARSING METHODS
     def program():
@@ -219,7 +211,6 @@ def parse(filehandle): #moved all parsing functionality into the parse method
         statement_part()
 
     def variable_declaration_part():
-        global cur_token_pair
         if cur_token_pair and cur_token_pair[1] == "var":
             match("Reserved Token", "var")
             variable_declaration()
@@ -229,7 +220,6 @@ def parse(filehandle): #moved all parsing functionality into the parse method
                 match("Special Token", ";")
 
     def variable_declaration():
-        global cur_token_pair
         match("Identifier Token")
         while cur_token_pair and cur_token_pair[1] == ",":
             match("Special Token", ",")
@@ -238,14 +228,12 @@ def parse(filehandle): #moved all parsing functionality into the parse method
         simple_type()
 
     def simple_type():
-        global cur_token_pair
         if cur_token_pair[1] in ["integer", "boolean"]:
             match("Data Type Token")
         else:
             raise SyntaxError(f"Expected simple type, got {cur_token_pair[1]}")
 
     def procedure_declaration_part():
-        global cur_token_pair
         while cur_token_pair and cur_token_pair[1] == "procedure":
             procedure_declaration()
             match("Special Token", ";")
@@ -264,7 +252,6 @@ def parse(filehandle): #moved all parsing functionality into the parse method
         compound_statement()
 
     def compound_statement():
-        global cur_token_pair
         match("Reserved Token", "begin")
         statement()
         while cur_token_pair and cur_token_pair[1] != "end":
@@ -272,7 +259,6 @@ def parse(filehandle): #moved all parsing functionality into the parse method
         match("Reserved Token", "end")
 
     def statement():
-        global cur_token_pair
         if cur_token_pair[1] in ["begin", "if", "while"]:
             structured_statement()
         else:
@@ -280,7 +266,6 @@ def parse(filehandle): #moved all parsing functionality into the parse method
             match("Special Token", ";")
 
     def simple_statement():
-        global cur_token_pair, token_index
         if cur_token_pair[0] == "Identifier Token":
             if token_pairs[token_index + 1][1] == ":=":
                 assignment_statement()
@@ -323,7 +308,6 @@ def parse(filehandle): #moved all parsing functionality into the parse method
         expression()
 
     def structured_statement():
-        global cur_token_pair
         if cur_token_pair[1] == "begin":
             compound_statement()
         elif cur_token_pair[1] == "if":
@@ -334,7 +318,6 @@ def parse(filehandle): #moved all parsing functionality into the parse method
             raise SyntaxError(f"Invalid structured statement: {cur_token_pair[1]}")
 
     def if_statement():
-        global cur_token_pair
         match("Reserved Token", "if")
         expression()
         match("Reserved Token", "then")
@@ -350,28 +333,24 @@ def parse(filehandle): #moved all parsing functionality into the parse method
         statement()
 
     def expression():
-        global cur_token_pair
         simple_expression()
         if cur_token_pair and cur_token_pair[0] == "Relation Token":
             relational_operator_fun()
             simple_expression()
 
     def simple_expression():
-        global cur_token_pair
         term()
         while cur_token_pair and cur_token_pair[0] == "Addition Token":
             adding_operator_fun()
             term()
 
     def term():
-        global cur_token_pair
         factor()
         while cur_token_pair and cur_token_pair[0] == "Multiplication Token":
             multiplying_operator_fun()
             factor()
 
     def factor():
-        global cur_token_pair
         if cur_token_pair[0] == "Identifier Token":
             variable()
         elif cur_token_pair[0] == "Integer Token" or cur_token_pair[0] in ["true", "false"]:
@@ -399,7 +378,6 @@ def parse(filehandle): #moved all parsing functionality into the parse method
         match("Identifier Token")
 
     def constant():
-        global cur_token_pair
         if cur_token_pair[0] == "Integer Token":
             match("Integer Token")
         elif cur_token_pair[1] in ["true", "false"]:
