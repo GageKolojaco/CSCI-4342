@@ -19,30 +19,39 @@ predefined_identifier = ['integer', 'boolean', 'true', 'false']
 token_pairs = []
 token_index = 0
 cur_token_pair = None
+memory_map = {}
+#VARIABLE CLASS
+class Variable:
+    def __init__(self, name, value, value_type):
+        self.name = name
+        self.value = value
+        self.value_type = value_type
 
 def main():
-    if len(sys.argv) != 2: 
-        print("Usage: python script_name.py <input_file>") # genric use statement
-        sys.exit(1)
+    #if len(sys.argv) != 2: 
+     #   print("Usage: python script_name.py <input_file>") # genric use statement
+      #  sys.exit(1)
     try:
-        parse(open(sys.argv[1])) #get file handle and open the file that is named in command line
+        parse(open("Interpreter/input3.txt")) #get file handle and open the file that is named in command line
         print("Parsing completed successfully.")
         reset_token_index()
-        interpret(open(sys.argv[1]))
+        interpret()
         print("Interpretation completed successfully.")
     except Exception as e:
         print(f"An unexpected error occurred: {e}")
         sys.exit(1)
 
 def interpret():
-    global cur_token_pair, token_index
+    global cur_token_pair
     while cur_token_pair is not None:
+        if cur_token_pair[1] == "var":
+            variable_interpretation()
         if cur_token_pair[1] == "read":
-            read_statement()  
+            read_interpretation()  
         elif cur_token_pair[1] == "write":
-            write_statement()  
-        elif cur_token_pair[1] == ":=":
-            assignment_statement()
+            write_interpretation()  
+        if token_pairs[token_index + 1][1] == ":=":
+            assignment_interpretation()
         advance()  # Move to the next token
 
 def reset_token_index():
@@ -73,21 +82,6 @@ def tokenator(token):
     else:
         return "Invalid Token"
 
-def parse(filehandle):
-    token_regex = re.compile(r'(\w+|\:=|<=|>=|<>|[^\w\s])')  # token regex pattern
-    for line in filehandle:   # iterate through each line
-        line = line.strip()   # strip whitespace
-        line_tokens = token_regex.findall(line)  # find tokens in line
-
-        for token in line_tokens:  # iterate through tokens
-            token_type = tokenator(token)  # get token type from tokenator function
-            token_pairs.append((token_type, token))  # add token and token type as a tuple.
-            print(f"{token_type} : {token}")  # print token and type if needed
-    
-    global cur_token_pair, token_index # from here and onwards we use the global keyword to make sure we don't reference a locally created variable
-    cur_token_pair = token_pairs[0] if token_pairs else None
-    program() #start parsing
-
 def advance(): # function to advance the global token index
     global token_pairs, token_index, cur_token_pair
     token_index += 1
@@ -111,207 +105,283 @@ def match(expected_type, expected_val=None): #function to match the expected tok
     if expected_val is not None and cur_token_pair[1] != expected_val:
         raise SyntaxError(f"Expected '{expected_val}', got '{cur_token_pair[0]}'")
     advance()
+
+def parse(filehandle): #moved all parsing functionality into the parse method
+    token_regex = re.compile(r'(\w+|\:=|<=|>=|<>|[^\w\s])')  # token regex pattern
+    for line in filehandle:   # iterate through each line
+        line = line.strip()   # strip whitespace
+        line_tokens = token_regex.findall(line)  # find tokens in line
+
+        for token in line_tokens:  # iterate through tokens
+            token_type = tokenator(token)  # get token type from tokenator function
+            token_pairs.append((token_type, token))  # add token and token type as a tuple.
+            print(f"{token_type} : {token}")  # print token and type if needed
     
-def program():
-    match("Reserved Token", "program")
-    match("Identifier Token")
-    match("Special Token", ";")
-    block()
-    match("Special Token", ".")
-
-def block():
-    variable_declaration_part()
-    procedure_declaration_part()
-    statement_part()
-
-def variable_declaration_part():
-    global cur_token_pair
-    if cur_token_pair and cur_token_pair[1] == "var":
-        match("Reserved Token", "var")
-        variable_declaration()
+    global cur_token_pair, token_index # from here and onwards we use the global keyword to make sure we don't reference a locally created variable
+    cur_token_pair = token_pairs[0] if token_pairs else None
+    #PARSING METHODS
+    def program():
+        match("Reserved Token", "program")
+        match("Identifier Token")
         match("Special Token", ";")
-        while cur_token_pair and cur_token_pair[0] == "Identifier Token":
+        block()
+        match("Special Token", ".")
+
+    def block():
+        variable_declaration_part()
+        procedure_declaration_part()
+        statement_part()
+
+    def variable_declaration_part():
+        global cur_token_pair
+        if cur_token_pair and cur_token_pair[1] == "var":
+            match("Reserved Token", "var")
             variable_declaration()
             match("Special Token", ";")
+            while cur_token_pair and cur_token_pair[0] == "Identifier Token":
+                variable_declaration()
+                match("Special Token", ";")
 
-def variable_declaration():
-    global cur_token_pair
-    match("Identifier Token")
-    while cur_token_pair and cur_token_pair[1] == ",":
-        match("Special Token", ",")
+    def variable_declaration():
+        global cur_token_pair
         match("Identifier Token")
-    match("Special Token", ":")
-    simple_type()
+        while cur_token_pair and cur_token_pair[1] == ",":
+            match("Special Token", ",")
+            match("Identifier Token")
+        match("Special Token", ":")
+        simple_type()
 
-def simple_type():
-    global cur_token_pair
-    if cur_token_pair[1] in ["integer", "boolean"]:
-        match("Data Type Token")
-    else:
-        raise SyntaxError(f"Expected simple type, got {cur_token_pair[1]}")
-
-def procedure_declaration_part():
-    global cur_token_pair
-    while cur_token_pair and cur_token_pair[1] == "procedure":
-        procedure_declaration()
-        match("Special Token", ";")
-
-def procedure_declaration():
-    match("Reserved Token", "procedure")
-    match("Identifier Token")
-    match("Special Token", ";")
-    procedure_block()
-
-def procedure_block():
-    variable_declaration_part()
-    statement_part()
-
-def statement_part():
-    compound_statement()
-
-def compound_statement():
-    global cur_token_pair
-    match("Reserved Token", "begin")
-    statement()
-    while cur_token_pair and cur_token_pair[1] != "end":
-        statement()
-    match("Reserved Token", "end")
-
-def statement():
-    global cur_token_pair
-    if cur_token_pair[1] in ["begin", "if", "while"]:
-        structured_statement()
-    else:
-        simple_statement()
-        match("Special Token", ";")
-
-def simple_statement():
-    global cur_token_pair, token_index
-    if cur_token_pair[0] == "Identifier Token":
-        if token_pairs[token_index + 1][1] == ":=":
-            assignment_statement()
+    def simple_type():
+        global cur_token_pair
+        if cur_token_pair[1] in ["integer", "boolean"]:
+            match("Data Type Token")
         else:
-            procedure_statement()
-    elif cur_token_pair[1] == "read":
-        read_statement()
-    elif cur_token_pair[1] == "write":
-        write_statement()
-    else:
-        raise SyntaxError(f"Invalid simple statement: {cur_token_pair[1]}")
+            raise SyntaxError(f"Expected simple type, got {cur_token_pair[1]}")
 
-def assignment_statement():
-    variable()
-    match("Assignment Token", ":=")
-    expression()
+    def procedure_declaration_part():
+        global cur_token_pair
+        while cur_token_pair and cur_token_pair[1] == "procedure":
+            procedure_declaration()
+            match("Special Token", ";")
 
-def procedure_statement():
-    procedure_identifier()
+    def procedure_declaration():
+        match("Reserved Token", "procedure")
+        match("Identifier Token")
+        match("Special Token", ";")
+        procedure_block()
 
-def procedure_identifier():
-    match("Identifier Token")
+    def procedure_block():
+        variable_declaration_part()
+        statement_part()
 
-def read_statement():
-    match("Reserved Token", "read")
-    match("Special Token", "(")
-    input_variable()
-    match("Special Token", ")")
-
-def input_variable():
-    variable()
-
-def write_statement():
-    match("Reserved Token", "write")
-    match("Special Token", "(")
-    output_value()
-    match("Special Token", ")")
-
-def output_value():
-    expression()
-
-def structured_statement():
-    global cur_token_pair
-    if cur_token_pair[1] == "begin":
+    def statement_part():
         compound_statement()
-    elif cur_token_pair[1] == "if":
-        if_statement()
-    elif cur_token_pair[1] == "while":
-        while_statement()
-    else:
-        raise SyntaxError(f"Invalid structured statement: {cur_token_pair[1]}")
 
-def if_statement():
-    global cur_token_pair
-    match("Reserved Token", "if")
-    expression()
-    match("Reserved Token", "then")
-    statement()
-    if cur_token_pair and cur_token_pair[1] == "else":
-        match("Reserved Token", "else")
+    def compound_statement():
+        global cur_token_pair
+        match("Reserved Token", "begin")
+        statement()
+        while cur_token_pair and cur_token_pair[1] != "end":
+            statement()
+        match("Reserved Token", "end")
+
+    def statement():
+        global cur_token_pair
+        if cur_token_pair[1] in ["begin", "if", "while"]:
+            structured_statement()
+        else:
+            simple_statement()
+            match("Special Token", ";")
+
+    def simple_statement():
+        global cur_token_pair, token_index
+        if cur_token_pair[0] == "Identifier Token":
+            if token_pairs[token_index + 1][1] == ":=":
+                assignment_statement()
+            else:
+                procedure_statement()
+        elif cur_token_pair[1] == "read":
+            read_statement()
+        elif cur_token_pair[1] == "write":
+            write_statement()
+        else:
+            raise SyntaxError(f"Invalid simple statement: {cur_token_pair[1]}")
+
+    def assignment_statement():
+        variable()
+        match("Assignment Token", ":=")
+        expression()
+
+    def procedure_statement():
+        procedure_identifier()
+
+    def procedure_identifier():
+        match("Identifier Token")
+
+    def read_statement():
+        match("Reserved Token", "read")
+        match("Special Token", "(")
+        input_variable()
+        match("Special Token", ")")
+
+    def input_variable():
+        variable()
+
+    def write_statement():
+        match("Reserved Token", "write")
+        match("Special Token", "(")
+        output_value()
+        match("Special Token", ")")
+
+    def output_value():
+        expression()
+
+    def structured_statement():
+        global cur_token_pair
+        if cur_token_pair[1] == "begin":
+            compound_statement()
+        elif cur_token_pair[1] == "if":
+            if_statement()
+        elif cur_token_pair[1] == "while":
+            while_statement()
+        else:
+            raise SyntaxError(f"Invalid structured statement: {cur_token_pair[1]}")
+
+    def if_statement():
+        global cur_token_pair
+        match("Reserved Token", "if")
+        expression()
+        match("Reserved Token", "then")
+        statement()
+        if cur_token_pair and cur_token_pair[1] == "else":
+            match("Reserved Token", "else")
+            statement()
+
+    def while_statement():
+        match("Reserved Token", "while")
+        expression()
+        match("Reserved Token", "do")
         statement()
 
-def while_statement():
-    match("Reserved Token", "while")
-    expression()
-    match("Reserved Token", "do")
-    statement()
-
-def expression():
-    global cur_token_pair
-    simple_expression()
-    if cur_token_pair and cur_token_pair[0] == "Relation Token":
-        relational_operator_fun()
+    def expression():
+        global cur_token_pair
         simple_expression()
+        if cur_token_pair and cur_token_pair[0] == "Relation Token":
+            relational_operator_fun()
+            simple_expression()
 
-def simple_expression():
-    global cur_token_pair
-    term()
-    while cur_token_pair and cur_token_pair[0] == "Addition Token":
-        adding_operator_fun()
+    def simple_expression():
+        global cur_token_pair
         term()
+        while cur_token_pair and cur_token_pair[0] == "Addition Token":
+            adding_operator_fun()
+            term()
 
-def term():
-    global cur_token_pair
-    factor()
-    while cur_token_pair and cur_token_pair[0] == "Multiplication Token":
-        multiplying_operator_fun()
+    def term():
+        global cur_token_pair
         factor()
+        while cur_token_pair and cur_token_pair[0] == "Multiplication Token":
+            multiplying_operator_fun()
+            factor()
 
-def factor():
+    def factor():
+        global cur_token_pair
+        if cur_token_pair[0] == "Identifier Token":
+            variable()
+        elif cur_token_pair[0] == "Integer Token" or cur_token_pair[0] in ["true", "false"]:
+            constant()
+        elif cur_token_pair[1] == "(":
+            match("Special Token", "(")
+            expression()
+            match("Special Token", ")")
+        elif cur_token_pair[1] == "not":
+            match("Reserved Token", "not")
+            factor()
+        else:
+            raise SyntaxError(f"Invalid factor: {cur_token_pair[1]}")
+
+    def relational_operator_fun():
+        match("Relation Token")
+
+    def adding_operator_fun():
+        match("Addition Token")
+
+    def multiplying_operator_fun():
+        match("Multiplication Token")
+
+    def variable():
+        match("Identifier Token")
+
+    def constant():
+        global cur_token_pair
+        if cur_token_pair[0] == "Integer Token":
+            match("Integer Token")
+        elif cur_token_pair[1] in ["true", "false"]:
+            match("Data Type Token")
+        else:
+            raise SyntaxError(f"Invalid constant: {cur_token_pair[1]}")
+
+    program() #start parsing
+
+def variable_interpretation():
+    global cur_token_pair, memory_map
+    #match("Reserved Token", "var")
+    advance() #theoretically because we know that the syntax is correct we can just advance
+    # Variable names list
+    variable_names = []
+    
+    # Collect variable names
+    while cur_token_pair[0] == "Identifier Token":
+        variable_names.append(cur_token_pair[1])  # Append the variable name
+        advance()  # Move to the next token
+        
+        # Check for a comma to continue collecting variable names
+        if cur_token_pair[1] == ",":
+            match("Special Token", ",")  # Consume the comma
+        else:
+            break  # Exit if no more variable names
+            
+        # Expecting a colon after variable names
+    #match("Special Token", ":")
+    advance() #theory
+    # Get the data type
+    data_type = cur_token_pair[1]
+    match("Data Type Token")  # Consume the data type token
+    
+    # Assign each variable to the memory_map with value None
+    for var_name in variable_names:
+        local_var = Variable(var_name, None, data_type)
+        memory_map[var_name] = (local_var)
+
+def read_interpretation():
+    global cur_token_pair, memory_map
+    advance()
+    advance()
+    var_name = cur_token_pair[1]
+    update_var = memory_map[var_name]
+    input_value = input(f"Enter value for {var_name} (type: {update_var.value_type}): ")
+    update_var.value = input_value
+    memory_map[var_name] = update_var
+    advance()
+
+def write_interpretation():
+    global cur_token_pair, memory_map
+    advance()
+    advance()
+    var_name = cur_token_pair[1]
+    print(memory_map[var_name].value)
+    advance()
+
+def assignment_interpretation():
+    global cur_token_pair, memory_map
+    var_being_assn_to = cur_token_pair[1]
+    advance()
+    advance()
+    expression_interpretation()
+    
+def expression_interpreation():
     global cur_token_pair
-    if cur_token_pair[0] == "Identifier Token":
-        variable()
-    elif cur_token_pair[0] == "Integer Token" or cur_token_pair[0] in ["true", "false"]:
-        constant()
-    elif cur_token_pair[1] == "(":
-        match("Special Token", "(")
-        expression()
-        match("Special Token", ")")
-    elif cur_token_pair[1] == "not":
-        match("Reserved Token", "not")
-        factor()
-    else:
-        raise SyntaxError(f"Invalid factor: {cur_token_pair[1]}")
-
-def relational_operator_fun():
-    match("Relation Token")
-
-def adding_operator_fun():
-    match("Addition Token")
-
-def multiplying_operator_fun():
-    match("Multiplication Token")
-
-def variable():
-    match("Identifier Token")
-
-def constant():
-    global cur_token_pair
-    if cur_token_pair[0] == "Integer Token":
-        match("Integer Token")
-    elif cur_token_pair[1] in ["true", "false"]:
-        match("Data Type Token")
-    else:
-        raise SyntaxError(f"Invalid constant: {cur_token_pair[1]}")
+    
 
 if __name__ == '__main__':
     main()
