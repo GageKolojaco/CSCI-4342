@@ -46,7 +46,9 @@ def interpret_file(filehandle):
             process_line(line)
 
 def process_line(line):
+    global cur_token_pair
     tokens = line.split()
+
     if tokens[0] == "read":
         var_name = tokens[1]
         # Perform read operation
@@ -59,7 +61,47 @@ def process_line(line):
         var_name = tokens[0]
         value = tokens[2]
         # Perform assignment operation
-        memory_map[var_name] = value
+        if value.isdigit():
+            memory_map[var_name] = int(value)  # store integer value
+        else:
+            memory_map[var_name] = memory_map.get(value, 'Undefined')  # retrieve from memory map
+
+def evaluate_expression(tokens):
+    result = None
+    current_operator = None
+
+    for token in tokens:
+        if token in adding_operator or token in multiplying_operator:
+            # This is an operator, save it for later
+            current_operator = token
+        elif token.isdigit():
+            value = int(token)
+            if result is None:
+                result = value
+            elif current_operator == "+":
+                result += value
+            elif current_operator == "-":
+                result -= value
+            elif current_operator == "or":
+                result = result or value
+        elif token in memory_map:
+            value = memory_map[token] #pull var from memory
+            if result is None:
+                result = value
+            elif current_operator == "+":
+                result += value
+            elif current_operator == "-":
+                result -= value
+            elif current_operator == "or":
+                result = result or value
+        else:
+            raise SyntaxError(f"Unknown token in expression: {token}")
+
+    if result is None:
+        raise SyntaxError(f"Invalid expression: {tokens}")
+    
+    return result
+
 
 def reset_token_index():
     global token_index, cur_token_pair
