@@ -2,7 +2,7 @@ function main()
     local start_time = os.clock()
     writeFile(readFile())
     local numbers = readNums()
-    local sorted_nums = sort(numbers) --sorting the array makes the following functions simpler
+    local sorted_nums = quickSort(numbers) --sorting the array makes the following functions simpler
     print("Mean: " .. mean(sorted_nums))
     print("Median: " .. median(sorted_nums))
     print("Mode: " .. mode(sorted_nums))
@@ -110,11 +110,7 @@ function standardDeviation(numbers, mean)
     return math.sqrt(deviation)        
 end
 
---call the main function to begin execution
-main()
-
 --potential quick sort implementation
-
 function quickSort(numbers)
     if #numbers <= 1 then
         return numbers
@@ -148,3 +144,6 @@ function quickSort(numbers)
     
     return result
 end
+
+--call the main function to begin execution
+main()
