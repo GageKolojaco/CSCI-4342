@@ -1,5 +1,5 @@
 function main()
-    local start = os.clock()
+    local start_time = os.clock()
     writeFile(readFile())
     local numbers = readNums()
     local sorted_nums = sort(numbers) --sorting the array makes the following functions simpler
@@ -112,3 +112,39 @@ end
 
 --call the main function to begin execution
 main()
+
+--potential quick sort implementation
+
+function quickSort(numbers)
+    if #numbers <= 1 then
+        return numbers
+    end
+    
+    local pivot = numbers[1]  -- Choose the first element as the pivot
+    local left, right = {}, {}
+    
+    -- Partition the list into two halves based on the pivot
+    for i = 2, #numbers do
+        if numbers[i] <= pivot then
+            table.insert(left, numbers[i])
+        else
+            table.insert(right, numbers[i])
+        end
+    end
+    
+    -- Recursively sort the left and right sub-arrays
+    left = quickSort(left)
+    right = quickSort(right)
+    
+    -- Concatenate the results with the pivot in between
+    local result = {}
+    for i = 1, #left do
+        table.insert(result, left[i])
+    end
+    table.insert(result, pivot)
+    for i = 1, #right do
+        table.insert(result, right[i])
+    end
+    
+    return result
+end
