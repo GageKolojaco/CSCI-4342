@@ -65,14 +65,15 @@ end
 --finding the mean
 function mean(numbers)
     local sum = 0
-    for nil , num in next, numbers do --loop throught the table and grab the value of each entry, we don't need the key
-        sum += num --add it to the sum
+    for _ , num in next, numbers do --loop throught the table and grab the value of each entry, we don't need the key
+        sum = sum + num --add it to the sum
     end
     return sum / #numbers --return the sum of the table divided by it's number of components
 end
 
 --finding the median
 function median(numbers) --using a sorted table we just grab the middle component of the table
+    local table_length = #numbers
     local mid = math.floor(table_length / 2)
     if table_length % 2 == 0 then
         median = (numbers[mid] + numbers[mid + 1]) / 2
@@ -100,12 +101,12 @@ function mode(numbers) --with a sorted array we just need to iterate in a straig
 end
 
 --finding the standard deviation
-function standardDeviation(numers, mean)
+function standardDeviation(numbers, mean)
     local deviation = 0
-    for nil, num in next, numbers do
-        deviation = deviation + (num - mean)/2
+    for _ , num in next, numbers do
+        deviation = deviation + (num - mean)^2
     end
-    deviation \= #numbers
+    deviation = deviation / (#numbers - 1)
     return math.sqrt(deviation)        
 end
 
