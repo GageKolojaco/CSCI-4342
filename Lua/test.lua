@@ -1,6 +1,6 @@
 function main()
     local start_time = os.clock()
-    writeFile(readFile())
+    writeFile("Writing the output of the reading of input.txt: " ..  readFile())
     local numbers = readNums()
     local sorted_nums = sort(numbers) --sorting the array makes the following functions simpler
     print("Mean: " .. mean(sorted_nums))
@@ -37,7 +37,7 @@ function readNums()
         if char:match("%d") or (char == "." and not num:find(".")) then --check if the char is a digit or a decimal, so long as a decimal doesn't already exist in num
             num = num .. char --apend char to number if it is part of one
         else
-            if #num > 0 then -- if num conatins a number
+            if #num > 0 then -- if num contains a number
                 table.insert(numbers, tonumber(num)) --insert it into the numbers table
                 num = "" --reset the num string
             end
@@ -49,17 +49,39 @@ function readNums()
     return numbers
 end
 
---sorting the provided table using a bubble sort implementation 
-function sort(numbers) 
-    local table_length = #numbers --store the length of the provided table in table_length var
-    for i = 1, table_length - 1 do --loop through the length of the table
-        for j = 1, table_length - i do --loop through the unsorted part of the table
-            if numbers[j] > numbers[j + 1] then --if the element ahead of the current one is greater
-                numbers[j], numbers[j + 1] = numbers[j + 1], numbers[j] --swap the positions of the elements (lua lets us do this in one line!)
-            end
+--sorting the provided table using a quick sort implementation 
+function sort(numbers)
+    if #numbers <= 1 then
+        return numbers
+    end
+    
+    local pivot = numbers[1]  --choose the first element as the pivot
+    local left, right = {}, {}
+    
+    --partition the list into two halves based on the pivot
+    for i = 2, #numbers do
+        if numbers[i] <= pivot then
+            table.insert(left, numbers[i])
+        else
+            table.insert(right, numbers[i])
         end
     end
-    return numbers
+    
+    --recursively sort the left and right
+    left = sort(left)
+    right = sort(right)
+    
+    --concatenate the results with the pivot in between
+    local result = {}
+    for i = 1, #left do
+        table.insert(result, left[i])
+    end
+    table.insert(result, pivot)
+    for i = 1, #right do
+        table.insert(result, right[i])
+    end
+    
+    return result
 end
 
 --finding the mean
@@ -75,7 +97,7 @@ end
 function median(numbers) --using a sorted table we just grab the middle component of the table
     local table_length = #numbers
     local mid = math.floor(table_length / 2)
-    if table_length % 2 == 0 then
+    if table_length % 2 == 0 then --this check is irrelevant since we know we will always have an even amount of numbers, but I did it for the sake of completeness
         median = (numbers[mid] + numbers[mid + 1]) / 2
     else
         median = numbers[mid + 1]
@@ -93,7 +115,7 @@ function mode(numbers) --with a sorted array we just need to iterate in a straig
     end
     local mode, max = nil, 0 --init our mode and max vars
     for key, count in next, freq do --iterate over the freq table, storing the value of the next pair in the table in our key and count vars
-        if count > max then -- if the freq of this digit is greater than our previous max freq
+        if count > max then --if the freq of this digit is greater than our previous max freq
             mode, max = key, count --store the digit in mode and store the digit's freq in max
         end
     end
@@ -103,7 +125,7 @@ end
 --finding the standard deviation
 function standardDeviation(numbers, mean)
     local deviation = 0
-    for _ , num in next, numbers do
+    for _ , num in next, numbers do --once again we don't need the key here
         deviation = deviation + (num - mean)^2
     end
     deviation = deviation / (#numbers - 1)
@@ -112,39 +134,3 @@ end
 
 --call the main function to begin execution
 main()
-
---potential quick sort implementation
-
-function quickSort(numbers)
-    if #numbers <= 1 then
-        return numbers
-    end
-    
-    local pivot = numbers[1]  -- Choose the first element as the pivot
-    local left, right = {}, {}
-    
-    -- Partition the list into two halves based on the pivot
-    for i = 2, #numbers do
-        if numbers[i] <= pivot then
-            table.insert(left, numbers[i])
-        else
-            table.insert(right, numbers[i])
-        end
-    end
-    
-    -- Recursively sort the left and right sub-arrays
-    left = quickSort(left)
-    right = quickSort(right)
-    
-    -- Concatenate the results with the pivot in between
-    local result = {}
-    for i = 1, #left do
-        table.insert(result, left[i])
-    end
-    table.insert(result, pivot)
-    for i = 1, #right do
-        table.insert(result, right[i])
-    end
-    
-    return result
-end
