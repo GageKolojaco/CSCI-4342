@@ -1,0 +1,1 @@
+Writing the output of the reading of input.txt: lua is actually pretty straightforward and fun!

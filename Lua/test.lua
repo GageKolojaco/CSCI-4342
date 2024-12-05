@@ -1,6 +1,6 @@
 function main()
     local start_time = os.clock()
-    writeFile(readFile())
+    writeFile("Writing the output of the reading of input.txt: " ..  readFile())
     local numbers = readNums()
     local sorted_nums = sort(numbers) --sorting the array makes the following functions simpler
     print("Mean: " .. mean(sorted_nums))
